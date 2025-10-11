@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tronsar — Developer Tools & Open Source Projects</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+  <!-- Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#hero" aria-label="TronsarDev home">
+        <!-- minimal SVG logo -->
+        <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0" stop-color="#7dd3fc"/>
+              <stop offset="1" stop-color="#60a5fa"/>
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#g)"/>
+          <path d="M7 16 L12 8 L17 16" stroke="#071024" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Tronsar</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main">
+        <a href="#applications">Applications</a>
+        <a href="#services">Services</a>
+        <a href="#projects">Projects</a>
+        <a href="#games">Games</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="themeToggle" class="icon-btn" aria-pressed="false" aria-label="Toggle theme">🌗</button>
+        <a class="cta" href="#applications">Explore Tools</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero" class="hero">
+      <div class="hero-inner">
+        <h1>Open-source developer tools, APIs, and web experiments by <span class="accent">Tronsar</span></h1>
+        <p class="lead">Applications · Services · Projects · Games — try them instantly, no installation required. Fast. Clean. Focused on productivity.</p>
+
+        <div class="hero-ctas">
+          <a href="#applications" class="btn btn-primary">Get Started</a>
+          <button id="demoPeek" class="btn btn-ghost">View Demo</button>
+        </div>
+
+        <div class="hero-tags" role="list" aria-hidden="true">
+          <span class="tag">Password Generator</span>
+          <span class="tag">Image Optimizer</span>
+          <span class="tag">Open Dashboard</span>
+          <span class="tag">Mini Games</span>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <!-- layered glass preview -->
+        <div class="preview">
+          <div class="preview-window">
+            <div class="pw-top">
+              <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            </div>
+            <div class="pw-body">
+              <div class="pw-grid">
+                <div class="pw-card">Password Generator</div>
+                <div class="pw-card">Image Optimizer</div>
+                <div class="pw-card">2048 Clone</div>
+                <div class="pw-card">Open Dashboard</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls: search + filters -->
+    <section class="controls">
+      <div class="controls-inner">
+        <div class="filters" role="tablist" aria-label="Categories">
+          <button class="filter active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button class="filter" data-filter="app" role="tab">Applications</button>
+          <button class="filter" data-filter="service" role="tab">Services</button>
+          <button class="filter" data-filter="project" role="tab">Projects</button>
+          <button class="filter" data-filter="game" role="tab">Games</button>
+        </div>
+
+        <div class="search">
+          <input id="searchInput" type="search" placeholder="Search tools — e.g. password, optimizer, 2048..." aria-label="Search tools">
+        </div>
+      </div>
+    </section>
+
+    <!-- Grid -->
+    <section id="tools" class="grid-section">
+      <div class="grid" id="cardsGrid">
+        <!-- card template: data-category contains one of: app, service, project, game -->
+        <article class="card" tabindex="0" role="article" data-category="app" data-title="Password Generator">
+          <div class="card-media">
+            <!-- inline svg icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="4" y="8" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Password Generator</h3>
+            <p class="card-desc">Generate strong passwords with options for length, symbols, and pronounceable mode.</p>
+            <div class="card-meta">
+              <span class="pill">App</span>
+              <span class="pill muted">Free</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn small try-btn">Try</button>
+              <button class="btn ghost small details-btn">Details</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" tabindex="0" data-category="app" data-title="Note App">
+          <div class="card-media">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Note App</h3>
+            <p class="card-desc">A minimal note app with local sync demo, tagging, and quick search.</p>
+            <div class="card-meta">
+              <span class="pill">App</span><span class="pill muted">PWA</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn small try-btn">Try</button>
+              <button class="btn ghost small details-btn">Details</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" tabindex="0" data-category="service" data-title="Image Optimizer">
+          <div class="card-media">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h16v10H4z" stroke="currentColor" stroke-width="1.6" fill="none"/>
+              <path d="M8 12l2 2 4-4 4 4" stroke="currentColor" stroke-width="1.4" fill="none"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Image Optimizer</h3>
+            <p class="card-desc">Compress and convert images on the client-side with before/after preview.</p>
+            <div class="card-meta">
+              <span class="pill">Service</span><span class="pill muted">Client-side</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn small try-btn">Try</button>
+              <button class="btn ghost small details-btn">Details</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" tabindex="0" data-category="project" data-title="Open Dashboard">
+          <div class="card-media">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3h7v7H3zM14 3h7v4h-7zM3 14h7v7H3zM14 10h7v11h-7z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Open Dashboard</h3>
+            <p class="card-desc">A lightweight dashboard template — charts, widgets, and auth-ready layout.</p>
+            <div class="card-meta">
+              <span class="pill">Project</span><span class="pill muted">Open-source</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn small try-btn">Preview</button>
+              <button class="btn ghost small details-btn">GitHub</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" tabindex="0" data-category="game" data-title="2048 Clone">
+          <div class="card-media">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">2048 Clone</h3>
+            <p class="card-desc">A simple, responsive 2048 puzzle game with scoring and undo support.</p>
+            <div class="card-meta">
+              <span class="pill">Game</span><span class="pill muted">HTML5</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn small try-btn">Play</button>
+              <button class="btn ghost small details-btn">Leaderboard</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" tabindex="0" data-category="game" data-title="Tic Tac Toe">
+          <div class="card-media">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h16M4 17h16M7 4v16M17 4v16" stroke="currentColor" stroke-width="1.2" fill="none"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Tic Tac Toe</h3>
+            <p class="card-desc">Play locally or against AI (easy mode) with a modern interface.</p>
+            <div class="card-meta">
+              <span class="pill">Game</span><span class="pill muted">Multiplayer</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn small try-btn">Play</button>
+              <button class="btn ghost small details-btn">Details</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="footer-cta">
+      <div>
+        <h4>Need a custom feature? <span class="accent">Tronsar</span> is ready to help.</h4>
+        <a class="btn btn-primary" href="#contact">Contact Us</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>© 2025 Tronsar • Built with ♥</small>
+  </footer>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-panel" role="document">
+      <button class="modal-close" aria-label="Close">✕</button>
+      <div id="modalContent" class="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
