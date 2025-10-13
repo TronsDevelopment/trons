@@ -1,22 +1,408 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tronsar — Developer Tools & Open Source Projects</title>
+  <title>Tronsar — Developer Tools, APIs & Open Source Projects</title>
 
+  <meta name="description" content="Discover modern developer tools, APIs, and open-source projects by Tronsar. Build faster, smarter, and cleaner — from password generators to games, dashboards, and more." />
+  <meta name="keywords" content="Tronsar, Developer Tools, Open Source, APIs, Projects, Web Tools, JavaScript, Python, Games, Dashboards, Minimal Design, Developer Portfolio" />
+  <meta name="author" content="Tronsar" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- icons & font -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Plus Jakarta Sans -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.6);
+      --accent-start: #7dd3fc;
+      --accent-end: #60a5fa;
+      --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --card-border: rgba(255,255,255,0.06);
+      --radius: 14px;
+      --fw-regular: 400;
+      --fw-medium: 600;
+      --max-w: 1200px;
+      color-scheme: dark;
+    }
 
-  <link rel="stylesheet" href="style.css">
+    /* light theme override */
+    :root.light {
+      --bg: #f8fafc;
+      --card: rgba(9,10,11,0.02);
+      --muted: rgba(9,10,11,0.6);
+      --accent-start: #2563eb;
+      --accent-end: #06b6d4;
+      --glass: rgba(9,10,11,0.02);
+      --glass-2: rgba(9,10,11,0.01);
+      --card-border: rgba(9,10,11,0.06);
+      color-scheme: light;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 400px at 10% 10%, rgba(96,165,250,0.06), transparent),
+                  linear-gradient(180deg, rgba(7,10,24,0.7), transparent 35%),
+                  var(--bg);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.4;
+      padding-bottom:80px;
+    }
+
+    .container{
+      max-width:var(--max-w);
+      margin:0 auto;
+      padding:28px;
+    }
+
+    /* NAV */
+    header.nav{
+      position:sticky;
+      top:12px;
+      z-index:60;
+      margin:0 auto;
+      width:calc(100% - 36px);
+      max-width:var(--max-w);
+      backdrop-filter: blur(8px) saturate(1.1);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border-radius: 16px;
+      padding:10px 14px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .nav-inner{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:16px;
+      justify-content:space-between;
+    }
+
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      text-decoration:none;
+      color:inherit;
+      font-weight:700;
+      letter-spacing:-0.2px;
+    }
+    .brand svg{filter: drop-shadow(0 6px 18px rgba(96,165,250,0.08));}
+    .brand span{font-weight:800; font-size:1.02rem}
+
+    .nav-links{
+      display:flex;
+      gap:16px;
+      align-items:center;
+    }
+    .nav-links a{
+      color:var(--muted);
+      text-decoration:none;
+      font-weight:600;
+      padding:10px 12px;
+      border-radius:10px;
+      transition:all .18s ease;
+      font-size:.95rem;
+    }
+    .nav-links a:hover{color:var(--accent-end); transform:translateY(-2px);}
+
+    .nav-actions{display:flex; gap:10px; align-items:center}
+    .icon-btn{
+      background:transparent;
+      border:0;
+      font-size:18px;
+      padding:8px;
+      border-radius:10px;
+      cursor:pointer;
+      color:var(--muted)
+    }
+    .cta{
+      text-decoration:none;
+      padding:10px 14px;
+      background:linear-gradient(90deg,var(--accent-start),var(--accent-end));
+      color:#071024;
+      font-weight:700;
+      border-radius:12px;
+      box-shadow: 0 8px 28px rgba(96,165,250,0.12);
+      transition:transform .14s ease;
+    }
+    .cta:hover{transform:translateY(-3px) scale(1.01)}
+
+    /* HERO */
+    .hero{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      align-items:center;
+      padding:40px 0;
+    }
+    .hero-inner h1{
+      margin:0 0 12px 0;
+      font-size:2.1rem;
+      line-height:1.05;
+      letter-spacing:-0.6px;
+    }
+    .accent{
+      background:linear-gradient(90deg,var(--accent-start),var(--accent-end));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .lead{color:var(--muted); margin:8px 0 18px 0; max-width:66%}
+
+    .hero-ctas{display:flex; gap:12px; margin-top:10px}
+    .btn{border:0; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700}
+    .btn-primary{background:linear-gradient(90deg,var(--accent-start),var(--accent-end)); color:#071024}
+    .btn-ghost{background:transparent; border:1px solid var(--card-border); color:var(--muted)}
+    .btn.small{padding:6px 10px; font-size:.9rem; border-radius:8px}
+    .btn.ghost.small{background:transparent; border:1px solid var(--card-border)}
+
+    .hero-tags{display:flex; gap:8px; margin-top:18px}
+    .tag{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:6px 10px; border-radius:999px; font-weight:600; color:var(--muted); font-size:.85rem;
+      border:1px solid var(--card-border)
+    }
+
+    /* preview glass */
+    .hero-visual .preview{
+      width:100%;
+      max-width:420px;
+      margin-left:auto;
+    }
+    .preview-window{
+      border-radius:16px;
+      padding:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid var(--card-border);
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      backdrop-filter: blur(8px) saturate(1.1);
+    }
+    .pw-top{display:flex; gap:6px; margin-bottom:10px}
+    .dot{width:10px; height:10px; border-radius:50%}
+    .dot.red{background:#fb7185}
+    .dot.yellow{background:#fbbf24}
+    .dot.green{background:#34d399}
+    .pw-body{padding:6px}
+    .pw-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px}
+    .pw-card{
+      border-radius:10px; padding:12px; font-weight:700; font-size:.88rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      border:1px solid rgba(255,255,255,0.02);
+      min-height:56px; display:flex; align-items:center; justify-content:center;
+    }
+
+    /* CONTROLS */
+    .controls{margin-top:8px; padding:18px 0}
+    .controls-inner{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .filters{display:flex; gap:8px}
+    .filter{
+      background:transparent; border:1px solid var(--card-border); color:var(--muted);
+      padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600;
+    }
+    .filter.active{background:linear-gradient(90deg,var(--accent-start),var(--accent-end)); color:#071024}
+
+    .search input{
+      padding:10px 12px; border-radius:12px; border:1px solid var(--card-border);
+      background:transparent; color:inherit; width:320px;
+    }
+    .search input::placeholder{color:rgba(255,255,255,0.35)}
+
+    /* GRID of cards */
+    .grid-section{margin-top:18px}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+      gap:16px;
+      margin-top:14px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:14px;
+      border:1px solid var(--card-border);
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      transition:transform .18s ease, box-shadow .18s ease;
+      outline: none;
+    }
+    .card:focus, .card:hover{
+      transform:translateY(-8px);
+      box-shadow: 0 20px 40px rgba(2,6,23,0.5);
+    }
+
+    .card-media{width:56px; height:56px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:linear-gradient(180deg,rgba(255,255,255,0.01), transparent); border:1px solid rgba(255,255,255,0.02)}
+    .card-media svg{width:28px; height:28px; color:var(--accent-end)}
+
+    .card-body{flex:1}
+    .card-title{margin:0; font-size:1.02rem; font-weight:700}
+    .card-desc{margin:6px 0 10px 0; color:var(--muted); font-size:.94rem}
+    .card-meta{display:flex; gap:8px; margin-bottom:8px}
+    .pill{padding:6px 8px; border-radius:999px; background:transparent; border:1px solid var(--card-border); font-weight:700; font-size:0.78rem}
+    .pill.muted{opacity:.8; font-weight:600}
+
+    .card-actions{display:flex; gap:8px}
+
+    /* footer CTA */
+    .footer-cta{
+      margin-top:34px;
+      padding:20px;
+      border-radius:16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border:1px solid var(--card-border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    }
+    .footer-cta h4{margin:0}
+    .footer-cta .accent{font-weight:800}
+
+    /* CONTACT (top small & full section) */
+    .contact-top{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background:transparent;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid transparent;
+    }
+    .contact-top a{color:var(--muted); text-decoration:none; font-weight:700}
+
+    /* Projects section (bottom) */
+    .projects{
+      margin-top:54px;
+    }
+    .projects h2{margin:0 0 12px 0; font-size:1.28rem}
+    .projects-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+      gap:16px;
+    }
+    .project-card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:16px; border-radius:14px; border:1px solid var(--card-border);
+      min-height:140px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      transition:transform .2s ease;
+    }
+    .project-card:hover{transform:translateY(-6px)}
+    .project-card h3{margin:0; font-size:1.02rem}
+    .project-desc{color:var(--muted); margin-top:8px; font-size:.95rem}
+    .project-tags{display:flex; gap:8px; margin-top:12px}
+
+    /* big contact section at bottom */
+    .contact-section{
+      margin-top:36px;
+      padding:18px;
+      border-radius:14px;
+      border:1px solid var(--card-border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    }
+    .contact-grid{display:flex; gap:20px; flex-wrap:wrap}
+    .contact-info{flex:1; min-width:220px}
+    .contact-form{flex:1.2; min-width:300px}
+    .input, textarea{
+      width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--card-border); background:transparent; color:inherit;
+      margin-bottom:10px;
+    }
+    textarea{min-height:120px; resize:vertical}
+
+    footer.site-footer{
+      margin-top:26px;
+      text-align:center;
+      color:var(--muted);
+      padding:16px 8px;
+      opacity:.95;
+    }
+
+    /* modal */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(2,6,23,0.5); z-index:200}
+    .modal[aria-hidden="false"]{display:flex}
+    .modal-panel{width:min(880px,94%); border-radius:12px; padding:18px; background:var(--bg); border:1px solid var(--card-border)}
+    .modal-close{float:right; border:0; background:transparent; font-size:18px; cursor:pointer; color:var(--muted)}
+
+    /* responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr; padding-bottom:10px}
+      .hero-inner h1{font-size:1.6rem}
+      .lead{max-width:100%}
+      .nav-links{display:none}
+      .search input{width:200px}
+      header.nav{padding:8px}
+    }
+
+    @media (max-width:540px){
+      .cta{display:none}
+      .search input{width:140px}
+      .nav-inner{gap:8px}
+      .brand span{display:none}
+      .pw-grid{grid-template-columns:1fr}
+    }
+
+    /* subtle entrance */
+    .fade-in{opacity:0; transform:translateY(8px); animation:fadeIn .7s forwards}
+    @keyframes fadeIn{to{opacity:1; transform:none}}
+
+    /* small utilities */
+    .muted{color:var(--muted)}
+    .row{display:flex; gap:12px; align-items:center}
+    .spacer{flex:1}
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://tronsar.is-cool.dev/",
+    "name": "Tronsar",
+    "alternateName": "Tronsar Developer Tools",
+    "description": "A portfolio of open-source developer tools, APIs, and experiments built by Tronsar.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Tronsar",
+      "url": "https://tronsar.is-cool.dev/#about"
+    },
+    "sameAs": [
+      "https://github.com/TronsDevelopment",
+      "https://discord.gg/xwcjPmMDT8"
+    ],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://tronsar.is-cool.dev/?s={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
-  <header class="nav">
+  <header class="nav" role="banner" aria-label="Primary Navigation">
     <div class="nav-inner">
-      <a class="brand" href="#hero" aria-label="TronsarDev home">
-        <!-- minimal SVG logo -->
+      <a class="brand" href="#hero" aria-label="Tronsar home">
         <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <defs>
             <linearGradient id="g" x1="0" x2="1">
@@ -31,28 +417,31 @@
       </a>
 
       <nav class="nav-links" aria-label="Main">
-        <a href="#applications">Applications</a>
-        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#tools">Tools</a>
         <a href="#projects">Projects</a>
-        <a href="#games">Games</a>
+        <a href="#contact">Contact</a>
       </nav>
 
-      <div class="nav-actions">
+      <div class="nav-actions" aria-hidden="false">
+        <div class="contact-top" aria-hidden="false">
+          <a href="#contact" title="Contact Me">📬 Contact Me</a>
+        </div>
         <button id="themeToggle" class="icon-btn" aria-pressed="false" aria-label="Toggle theme">🌗</button>
-        <a class="cta" href="#applications">Explore Tools</a>
+        <a class="cta" href="#tools">Explore Tools</a>
       </div>
     </div>
   </header>
 
-  <main>
-    <section id="hero" class="hero">
+  <main class="container" id="top">
+    <section id="hero" class="hero fade-in" aria-labelledby="heroTitle">
       <div class="hero-inner">
-        <h1>Open-source developer tools, APIs, and web experiments by <span class="accent">Tronsar</span></h1>
-        <p class="lead">Applications · Services · Projects · Games — try them instantly, no installation required. Fast. Clean. Focused on productivity.</p>
+        <h1 id="heroTitle">Open-source developer tools, APIs & experiments by <span class="accent">Tronsar</span></h1>
+        <p class="lead">Fast, focused, and easy-to-try web tools: small apps, client-side services, dashboard templates, and mini games — curated for productivity and learning.</p>
 
         <div class="hero-ctas">
-          <a href="#applications" class="btn btn-primary">Get Started</a>
-          <button id="demoPeek" class="btn btn-ghost">View Demo</button>
+          <a href="#tools" class="btn btn-primary">Get Started</a>
+          <button id="demoPeek" class="btn btn-ghost" aria-controls="modal" aria-expanded="false">View Demo</button>
         </div>
 
         <div class="hero-tags" role="list" aria-hidden="true">
@@ -62,9 +451,9 @@
           <span class="tag">Mini Games</span>
         </div>
       </div>
-      <div class="hero-visual" aria-hidden="true">
-        <!-- layered glass preview -->
-        <div class="preview">
+
+      <aside class="hero-visual" aria-hidden="true">
+        <div class="preview fade-in" style="animation-delay:.08s">
           <div class="preview-window">
             <div class="pw-top">
               <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
@@ -79,13 +468,42 @@
             </div>
           </div>
         </div>
+      </aside>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" style="margin-top:6px" class="fade-in" aria-labelledby="aboutTitle">
+      <div style="display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap;">
+        <div style="min-width:260px; flex:0 0 360px">
+          <div style="border-radius:14px; padding:16px; border:1px solid rgba(255,255,255,0.04); background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)">
+            <h3 style="margin:0 0 6px 0">Hi, I'm <span class="accent">Tronsar</span></h3>
+            <p class="muted" style="margin:0">I build small, practical developer tools and web experiments — open-source, performance-first, and keyboard-friendly.</p>
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+              <span class="pill">JavaScript</span>
+              <span class="pill">Python</span>
+              <span class="pill">Flask</span>
+              <span class="pill">PyQt5</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1; min-width:240px">
+          <h3 style="margin-top:0; margin-bottom:6px">What I make</h3>
+          <p class="muted" style="margin-top:0">Tiny tools for everyday developer friction — password utilities, image tooling, dashboards, and small browser games to test ideas quickly.</p>
+
+          <div style="display:flex; gap:10px; margin-top:12px; align-items:center;">
+            <a class="btn ghost small" href="#tools">Explore Tools</a>
+            <a class="btn small" href="#projects">See Projects</a>
+            <a class="btn small" href="#contact">Hire / Contact</a>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Controls: search + filters -->
-    <section class="controls">
+    <!-- CONTROLS: search + filters -->
+    <section class="controls fade-in" style="margin-top:18px">
       <div class="controls-inner">
-        <div class="filters" role="tablist" aria-label="Categories">
+        <div class="filters" role="tablist" aria-label="Categories" id="filters">
           <button class="filter active" data-filter="all" role="tab" aria-selected="true">All</button>
           <button class="filter" data-filter="app" role="tab">Applications</button>
           <button class="filter" data-filter="service" role="tab">Services</button>
@@ -99,33 +517,35 @@
       </div>
     </section>
 
-    <!-- Grid -->
-    <section id="tools" class="grid-section">
-      <div class="grid" id="cardsGrid">
-        <!-- card template: data-category contains one of: app, service, project, game -->
-        <article class="card" tabindex="0" role="article" data-category="app" data-title="Password Generator">
-          <div class="card-media">
-            <!-- inline svg icon -->
-            <svg viewBox="0 0 24 24" aria-hidden="true">
+    <!-- TOOLS GRID -->
+    <section id="tools" class="grid-section" aria-labelledby="toolsTitle">
+      <h2 id="toolsTitle" style="margin:0 0 8px 0">Tools & Small Apps</h2>
+      <div class="grid fade-in" id="cardsGrid" role="list">
+        <!-- cards: repeated items (kept inline for single-file demo) -->
+        <!-- Card 1 -->
+        <article class="card" tabindex="0" role="article" data-category="app" data-title="Password Generator" aria-label="Password Generator">
+          <div class="card-media" aria-hidden="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M12 2v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               <rect x="4" y="8" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/>
             </svg>
           </div>
           <div class="card-body">
             <h3 class="card-title">Password Generator</h3>
-            <p class="card-desc">Generate strong passwords with options for length, symbols, and pronounceable mode.</p>
+            <p class="card-desc">Generate strong passwords with length, symbols, and pronounceable options.</p>
             <div class="card-meta">
               <span class="pill">App</span>
               <span class="pill muted">Free</span>
             </div>
             <div class="card-actions">
-              <button class="btn small try-btn">Try</button>
-              <button class="btn ghost small details-btn">Details</button>
+              <button class="btn small try-btn" data-demo="password">Try</button>
+              <button class="btn ghost small details-btn" data-url="https://github.com/tronsar/password-gen">Details</button>
             </div>
           </div>
         </article>
 
-        <article class="card" tabindex="0" data-category="app" data-title="Note App">
+        <!-- Card 2 -->
+        <article class="card" tabindex="0" role="article" data-category="app" data-title="Note App">
           <div class="card-media">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -133,116 +553,440 @@
           </div>
           <div class="card-body">
             <h3 class="card-title">Note App</h3>
-            <p class="card-desc">A minimal note app with local sync demo, tagging, and quick search.</p>
-            <div class="card-meta">
-              <span class="pill">App</span><span class="pill muted">PWA</span>
-            </div>
+            <p class="card-desc">Minimal notes with tags, local sync, and keyboard shortcuts (demo).</p>
+            <div class="card-meta"><span class="pill">App</span><span class="pill muted">PWA</span></div>
             <div class="card-actions">
-              <button class="btn small try-btn">Try</button>
-              <button class="btn ghost small details-btn">Details</button>
+              <button class="btn small try-btn" data-demo="note">Try</button>
+              <button class="btn ghost small details-btn" data-url="https://github.com/tronsar/note-app">Details</button>
             </div>
           </div>
         </article>
 
-        <article class="card" tabindex="0" data-category="service" data-title="Image Optimizer">
-          <div class="card-media">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 7h16v10H4z" stroke="currentColor" stroke-width="1.6" fill="none"/>
-              <path d="M8 12l2 2 4-4 4 4" stroke="currentColor" stroke-width="1.4" fill="none"/>
-            </svg>
-          </div>
+        <!-- Card 3 -->
+        <article class="card" tabindex="0" role="article" data-category="service" data-title="Image Optimizer">
+          <div class="card-media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v10H4z" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M8 12l2 2 4-4 4 4" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></div>
           <div class="card-body">
             <h3 class="card-title">Image Optimizer</h3>
-            <p class="card-desc">Compress and convert images on the client-side with before/after preview.</p>
-            <div class="card-meta">
-              <span class="pill">Service</span><span class="pill muted">Client-side</span>
-            </div>
+            <p class="card-desc">Compress & convert images client-side with before/after preview.</p>
+            <div class="card-meta"><span class="pill">Service</span><span class="pill muted">Client-side</span></div>
             <div class="card-actions">
-              <button class="btn small try-btn">Try</button>
-              <button class="btn ghost small details-btn">Details</button>
+              <button class="btn small try-btn" data-demo="image">Try</button>
+              <button class="btn ghost small details-btn" data-url="https://github.com/tronsar/image-optimizer">Details</button>
             </div>
           </div>
         </article>
 
-        <article class="card" tabindex="0" data-category="project" data-title="Open Dashboard">
-          <div class="card-media">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 3h7v7H3zM14 3h7v4h-7zM3 14h7v7H3zM14 10h7v11h-7z" stroke="currentColor" stroke-width="1.2" fill="none"/>
-            </svg>
-          </div>
+        <!-- Card 4 -->
+        <article class="card" tabindex="0" role="article" data-category="project" data-title="Open Dashboard">
+          <div class="card-media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v4h-7zM3 14h7v7H3zM14 10h7v11h-7z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg></div>
           <div class="card-body">
             <h3 class="card-title">Open Dashboard</h3>
-            <p class="card-desc">A lightweight dashboard template — charts, widgets, and auth-ready layout.</p>
-            <div class="card-meta">
-              <span class="pill">Project</span><span class="pill muted">Open-source</span>
-            </div>
+            <p class="card-desc">Lightweight template — charts, widgets, and auth-ready layout.</p>
+            <div class="card-meta"><span class="pill">Project</span><span class="pill muted">Open-source</span></div>
             <div class="card-actions">
-              <button class="btn small try-btn">Preview</button>
-              <button class="btn ghost small details-btn">GitHub</button>
+              <button class="btn small try-btn" data-demo="dashboard">Preview</button>
+              <button class="btn ghost small details-btn" data-url="https://github.com/tronsar/open-dashboard">GitHub</button>
             </div>
           </div>
         </article>
 
-        <article class="card" tabindex="0" data-category="game" data-title="2048 Clone">
-          <div class="card-media">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/>
-            </svg>
-          </div>
+        <!-- Card 5 -->
+        <article class="card" tabindex="0" role="article" data-category="game" data-title="2048 Clone">
+          <div class="card-media"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></div>
           <div class="card-body">
             <h3 class="card-title">2048 Clone</h3>
-            <p class="card-desc">A simple, responsive 2048 puzzle game with scoring and undo support.</p>
-            <div class="card-meta">
-              <span class="pill">Game</span><span class="pill muted">HTML5</span>
-            </div>
+            <p class="card-desc">Responsive 2048 puzzle game with scoring and undo support.</p>
+            <div class="card-meta"><span class="pill">Game</span><span class="pill muted">HTML5</span></div>
             <div class="card-actions">
-              <button class="btn small try-btn">Play</button>
-              <button class="btn ghost small details-btn">Leaderboard</button>
+              <button class="btn small try-btn" data-demo="2048">Play</button>
+              <button class="btn ghost small details-btn" data-url="https://github.com/tronsar/2048-clone">Leaderboard</button>
             </div>
           </div>
         </article>
 
-        <article class="card" tabindex="0" data-category="game" data-title="Tic Tac Toe">
-          <div class="card-media">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 7h16M4 17h16M7 4v16M17 4v16" stroke="currentColor" stroke-width="1.2" fill="none"/>
-            </svg>
-          </div>
+        <!-- Card 6 -->
+        <article class="card" tabindex="0" role="article" data-category="game" data-title="Tic Tac Toe">
+          <div class="card-media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M7 4v16M17 4v16" stroke="currentColor" stroke-width="1.2" fill="none"/></svg></div>
           <div class="card-body">
             <h3 class="card-title">Tic Tac Toe</h3>
-            <p class="card-desc">Play locally or against AI (easy mode) with a modern interface.</p>
-            <div class="card-meta">
-              <span class="pill">Game</span><span class="pill muted">Multiplayer</span>
-            </div>
+            <p class="card-desc">Play locally or against an easy AI with a modern interface.</p>
+            <div class="card-meta"><span class="pill">Game</span><span class="pill muted">Multiplayer</span></div>
             <div class="card-actions">
-              <button class="btn small try-btn">Play</button>
-              <button class="btn ghost small details-btn">Details</button>
+              <button class="btn small try-btn" data-demo="tictactoe">Play</button>
+              <button class="btn ghost small details-btn" data-url="https://github.com/tronsar/tictactoe">Details</button>
             </div>
           </div>
         </article>
       </div>
     </section>
 
-    <section class="footer-cta">
+    <!-- CUSTOM CTA -->
+    <section class="footer-cta fade-in" aria-hidden="false" style="margin-top:24px">
       <div>
-        <h4>Need a custom feature? <span class="accent">Tronsar</span> is ready to help.</h4>
+        <h4 style="margin:0 0 6px 0">Need a custom feature? <span class="accent">Tronsar</span> is ready to help.</h4>
+        <p class="muted" style="margin:0 0 8px 0">Short projects, consults, and open-source collaborations — let's build something useful.</p>
         <a class="btn btn-primary" href="#contact">Contact Us</a>
+      </div>
+      <div class="muted" style="font-size:.95rem">Or email: hello@tronsar.dev</div>
+    </section>
+
+    <!-- PROJECTS (bottom, as requested) -->
+    <section id="projects" class="projects fade-in" aria-labelledby="projectsTitle">
+      <h2 id="projectsTitle" style="margin-bottom:8px">Selected Projects</h2>
+      <div class="projects-grid">
+        <div class="project-card">
+          <div>
+            <h3>MaximalTaskBoost</h3>
+            <p class="project-desc">Offline task manager for power users. System monitoring, game-boost, priority controls, and low-memory support (built with PyQt5 & psutil).</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
+            <div class="project-tags"><span class="pill">Desktop</span><span class="pill muted">Open-source</span></div>
+            <div><a class="btn small" href="#">Repo</a></div>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div>
+            <h3>DutaStatsV1.5</h3>
+            <p class="project-desc">API & dashboard for Minecraft server statistics, supporting Velocity/Bungee and custom scrapers for popular servers.</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
+            <div class="project-tags"><span class="pill">API</span><span class="pill muted">Python</span></div>
+            <div><a class="btn small" href="docs/api/dutastats/">Docs</a></div>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div>
+            <h3>Open Dashboard Template</h3>
+            <p class="project-desc">Lightweight admin UI with charts and widgets that works well as a boilerplate for small SaaS and personal tools.</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
+            <div class="project-tags"><span class="pill">Web</span><span class="pill muted">React</span></div>
+            <div><a class="btn small" href="#">Preview</a></div>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div>
+            <h3>Password Generator Series</h3>
+            <p class="project-desc">Several variants: CLI, web, and pronounceable password generator with entropy meter and copy helpers.</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
+            <div class="project-tags"><span class="pill">Tooling</span><span class="pill muted">JS/Python</span></div>
+            <div><a class="btn small" href="#">Try</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION (bottom, detailed) -->
+    <section id="contact" class="contact-section fade-in" aria-labelledby="contactTitle">
+      <h2 id="contactTitle">Contact Me</h2>
+      <div class="contact-grid" style="margin-top:12px">
+        <div class="contact-info">
+          <p class="muted">I'm available for freelance work, small contracts, and open-source collaborations. Fast turnaround for small to medium tasks.</p>
+          <ul style="list-style:none; padding:0; margin:12px 0 0 0; display:grid; gap:8px">
+            <li><strong>Email:</strong> esrjoo841@gmail.com</li>
+            <li><strong>Location:</strong> Indonesia (UTC+7)</li>
+            <li><strong>Youtube:</strong> <a href="#" class="muted">/tronsar</a></li>
+            <li><strong>GitHub:</strong> <a href="#" class="muted">/tronsar</a></li>
+            <li><strong>Discord:</strong> tronsdc#0</li>
+          </ul>
+        </div>
+
+        <form class="contact-form" id="contactForm" aria-labelledby="contactTitle" onsubmit="handleContact(event)">
+          <label class="muted" for="name">Your name</label>
+          <input id="name" class="input" name="name" placeholder="Jane Developer" required>
+
+          <label class="muted" for="email">Email</label>
+          <input id="email" class="input" name="email" placeholder="jane@company.com" type="email" required>
+
+          <label class="muted" for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Brief description of the project, your timeline, and budget (optional)"></textarea>
+
+          <div style="display:flex; gap:10px; align-items:center">
+            <button class="btn btn-primary" type="submit">Send Message</button>
+            <button class="btn small" type="button" onclick="copyEmail()">Copy Email</button>
+            <div id="contactStatus" class="muted" aria-live="polite" style="font-size:.95rem"></div>
+          </div>
+        </form>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <small>© 2025 Tronsar • Built with ♥</small>
+  <footer class="site-footer" role="contentinfo">
+    <div style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap">
+      <small>© 2025 Tronsar • Built with ♥</small>
+      <a href="#contact" style="text-decoration:none; color:inherit; font-weight:700">Contact Me</a>
+    </div>
   </footer>
 
-  <!-- Modal -->
-  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <!-- Modal for demos -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
     <div class="modal-panel" role="document">
       <button class="modal-close" aria-label="Close">✕</button>
-      <div id="modalContent" class="modal-content"></div>
+      <div id="modalContent" class="modal-content" style="margin-top:8px"></div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // -------------------------
+    // Theme Toggle (persist)
+    // -------------------------
+    (function(){
+      const root = document.documentElement;
+      const toggle = document.getElementById('themeToggle');
+      const saved = localStorage.getItem('tronsar_theme');
+      if(saved === 'light'){
+        root.classList.add('light');
+        toggle.setAttribute('aria-pressed','true');
+        toggle.textContent = '🌞';
+      } else {
+        toggle.setAttribute('aria-pressed','false');
+        toggle.textContent = '🌗';
+      }
+      toggle.addEventListener('click', () => {
+        if(root.classList.contains('light')){
+          root.classList.remove('light');
+          localStorage.removeItem('tronsar_theme');
+          toggle.setAttribute('aria-pressed','false');
+          toggle.textContent = '🌗';
+        } else {
+          root.classList.add('light');
+          localStorage.setItem('tronsar_theme','light');
+          toggle.setAttribute('aria-pressed','true');
+          toggle.textContent = '🌞';
+        }
+      });
+    })();
+
+    // -------------------------
+    // Filtering & Search
+    // -------------------------
+    (function(){
+      const filters = document.getElementById('filters');
+      const buttons = Array.from(filters.querySelectorAll('.filter'));
+      const grid = document.getElementById('cardsGrid');
+      const cards = Array.from(grid.querySelectorAll('.card'));
+      const searchInput = document.getElementById('searchInput');
+
+      function applyFilter(cat, query){
+        const q = (query || '').toLowerCase().trim();
+        cards.forEach(card => {
+          const title = card.dataset.title.toLowerCase();
+          const category = card.dataset.category;
+          const matchesCat = (cat === 'all') || (category === cat);
+          const matchesQuery = (!q) || title.includes(q) || (card.querySelector('.card-desc') && card.querySelector('.card-desc').textContent.toLowerCase().includes(q));
+          if(matchesCat && matchesQuery){
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const cat = btn.dataset.filter;
+          applyFilter(cat, searchInput.value);
+        });
+      });
+
+      searchInput.addEventListener('input', (e) => {
+        const active = filters.querySelector('.filter.active').dataset.filter;
+        applyFilter(active, e.target.value);
+      });
+
+      // keyboard: focus search with "/" key
+      window.addEventListener('keydown', (e) => {
+        if(e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+    })();
+
+    // -------------------------
+    // Modal + demo peek
+    // -------------------------
+    (function(){
+      const modal = document.getElementById('modal');
+      const modalContent = document.getElementById('modalContent');
+      const demoBtn = document.getElementById('demoPeek');
+      const closeBtn = modal.querySelector('.modal-close');
+
+      function openModal(html){
+        modalContent.innerHTML = html;
+        modal.setAttribute('aria-hidden','false');
+        document.body.style.overflow = 'hidden';
+        modal.querySelector('.modal-close').focus();
+      }
+      function closeModal(){
+        modal.setAttribute('aria-hidden','true');
+        document.body.style.overflow = '';
+        modalContent.innerHTML = '';
+      }
+
+      demoBtn.addEventListener('click', () => {
+        openModal(`<h3 id="modalTitle">Quick Demo</h3>
+          <p class="muted">This page is a single-file portfolio demo. Click any <strong>Try</strong> button on cards to load micro-demos here.</p>
+          <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn small" onclick="loadDemo('password')">Password Generator</button>
+            <button class="btn small" onclick="loadDemo('image')">Image Optimizer</button>
+            <button class="btn small" onclick="loadDemo('2048')">2048 Clone (mini)</button>
+          </div>`);
+      });
+
+      closeBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => {
+        if(e.target === modal) closeModal();
+      });
+
+      // Expose loadDemo to global for demo buttons above
+      window.loadDemo = function(key){
+        if(key === 'password'){
+          openModal(`<h3>Password Generator</h3>
+            <p class="muted">Quick inline password generator demo.</p>
+            <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+              <input id="pwLen" type="number" min="6" max="48" value="16" class="input" style="width:110px">
+              <select id="pwType" class="input" style="width:160px">
+                <option value="all">Letters + numbers + symbols</option>
+                <option value="no-symbols">Letters + numbers</option>
+                <option value="pronounce">Pronounceable</option>
+              </select>
+              <button class="btn btn-primary" onclick="generateQuickPW()">Generate</button>
+            </div>
+            <pre id="pwOut" style="margin-top:12px; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent">—</pre>`);
+        } else if(key === 'image'){
+          openModal(`<h3>Image Optimizer (client-side)</h3>
+            <p class="muted">Drop an image or pick a file to see a quick compress preview.</p>
+            <input type="file" id="imgPick" accept="image/*" class="input">
+            <div id="imgPreview" style="margin-top:12px" aria-live="polite"></div>`);
+          // attach file handler
+          setTimeout(()=> {
+            const pick = document.getElementById('imgPick');
+            pick.addEventListener('change', async (e) => {
+              const f = e.target.files[0];
+              if(!f) return;
+              const url = URL.createObjectURL(f);
+              document.getElementById('imgPreview').innerHTML = `<img src="${url}" style="max-width:100%; border-radius:8px; border:1px solid rgba(255,255,255,0.04)">`;
+            });
+          }, 0);
+        } else if(key === '2048'){
+          openModal(`<h3>2048 Mini (toy)</h3><p class="muted">Simple 4x4 static board mock (playable demo beyond scope of inline demo).</p><div style="display:grid; grid-template-columns:repeat(4,60px); gap:6px; margin-top:12px">` +
+            Array.from({length:16}).map((_,i)=> `<div style="width:60px;height:60px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.03)">${Math.random()>0.7?2*(2**Math.floor(Math.random()*6)):""}</div>`).join('') + `</div>`);
+        }
+      };
+
+      // global generateQuickPW
+      window.generateQuickPW = function(){
+        const len = Number(document.getElementById('pwLen').value) || 16;
+        const type = document.getElementById('pwType').value;
+        const alpha = 'abcdefghijklmnopqrstuvwxyz';
+        const ALPHA = alpha.toUpperCase();
+        const nums = '0123456789';
+        const syms = '!@#$%^&*()_+[]{}|;:,.<>?';
+        let pool = ALPHA + alpha + nums + syms;
+        if(type === 'no-symbols') pool = ALPHA + alpha + nums;
+        if(type === 'pronounce'){
+          // simple pronounceable generator
+          const vowels = 'aeiou';
+          let out = '';
+          for(let i=0;i<len;i++){
+            out += (i%2===0 ? alpha[Math.floor(Math.random()*alpha.length)] : vowels[Math.floor(Math.random()*vowels.length)]);
+          }
+          document.getElementById('pwOut').textContent = out;
+          return;
+        }
+        let pw='';
+        for(let i=0;i<len;i++){
+          pw += pool[Math.floor(Math.random()*pool.length)];
+        }
+        document.getElementById('pwOut').textContent = pw;
+      };
+
+      // attach try buttons
+      document.querySelectorAll('.try-btn').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const key = btn.dataset.demo;
+          if(key){
+            window.loadDemo(key);
+          } else {
+            openModal('<h3>Preview</h3><p class="muted">This demo panel can show inline micro-demos.</p>');
+          }
+        });
+      });
+
+      // attach details buttons (open url or placeholder)
+      document.querySelectorAll('.details-btn').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const u = b.dataset.url || '#';
+          if(u.startsWith('http')){
+            window.open(u, '_blank');
+          } else {
+            openModal('<h3>Repository</h3><p class="muted">Link not available in demo.</p>');
+          }
+        });
+      });
+    })();
+
+    // -------------------------
+    // Contact form handler (demo)
+    // -------------------------
+    function handleContact(e){
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const status = document.getElementById('contactStatus');
+
+      // quick client-side validation
+      if(!name || !email){
+        status.textContent = 'Please enter name and email.';
+        return;
+      }
+      status.textContent = 'Sending…';
+
+      // demo: fake async send (no background tasks per system policy)
+      setTimeout(()=> {
+        status.textContent = 'Message sent — I will reply soon. (Demo)';
+        // reset form
+        document.getElementById('contactForm').reset();
+      }, 800);
+    }
+
+    // copy email helper
+    function copyEmail(){
+      const text = 'hello@tronsar.dev';
+      navigator.clipboard?.writeText(text).then(()=> {
+        const el = document.getElementById('contactStatus');
+        if(el) el.textContent = 'Email copied to clipboard';
+        setTimeout(()=>{ if(el) el.textContent = ''; }, 2000);
+      }).catch(()=> {
+        alert('Copy failed — email: ' + text);
+      });
+    }
+
+    // Accessibility: focus outlines for keyboard users
+    (function(){
+      function handleFirstTab(e){
+        if(e.key === 'Tab'){
+          document.documentElement.classList.add('user-is-tabbing');
+          window.removeEventListener('keydown', handleFirstTab);
+        }
+      }
+      window.addEventListener('keydown', handleFirstTab);
+    })();
+
+    // small enhancement: animate elements on load
+    window.addEventListener('load', ()=>{
+      document.querySelectorAll('.fade-in').forEach((el,i)=>{
+        el.style.animation = `fadeIn .6s ease ${i*80}ms both`;
+      });
+    });
+  </script>
 </body>
 </html>
