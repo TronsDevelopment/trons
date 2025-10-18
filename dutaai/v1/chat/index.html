@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>DutaAI — Chat Lokal</title>
+<title>DutaAI - Chat (v1.2)</title>
 
 <!-- MathJax -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?version=4.8.0&features=es6"></script>
 <script id="MathJax-script" async
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
@@ -14,198 +14,208 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
-  :root {
-    --bg: #131314;
-    --chat-bg: #1e1f20;
-    --bubble-ai: #2a2b2e;
-    --bubble-user: #3b3c40;
-    --text: #e5e5e5;
+  :root{
+    --bg: #0f1011;
+    --bg-2: #0b0b0c;
+    --chat-bg: linear-gradient(180deg, rgba(22,22,23,0.6), rgba(12,12,13,0.6));
+    --glass: rgba(255,255,255,0.03);
+    --bubble-ai: rgba(30,31,33,0.9);
+    --bubble-user: rgba(44,45,48,0.95);
+    --text: #e9eef0;
+    --muted: #9aa3a8;
     --accent: #10a37f;
-    --border: #2c2c2c;
+    --accent-glow: rgba(16,163,127,0.18);
+    --border: rgba(255,255,255,0.04);
+    --radius: 14px;
   }
-  * { box-sizing: border-box; transition: all 0.2s ease; }
+
+  /* light theme vars */
+  :root.light {
+    --bg: #f6f7f8;
+    --bg-2: #ffffff;
+    --glass: rgba(0,0,0,0.03);
+    --chat-bg: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));
+    --bubble-ai: rgba(245,246,247,0.98);
+    --bubble-user: rgba(230,231,232,0.98);
+    --text: #111214;
+    --muted: #6b7176;
+    --accent-glow: rgba(16,163,127,0.09);
+    --border: rgba(0,0,0,0.06);
+  }
+
+  * { box-sizing: border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  html,body{height:100%; margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
   body {
-    margin: 0;
-    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+    display:flex; flex-direction:column; background:var(--bg);
+    color:var(--text); min-height:100vh;
   }
+
   header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    text-align: center;
-    padding: 16px;
-    font-weight: 600;
-    font-size: 18px;
-    background: linear-gradient(180deg, #131314 40%, transparent);
+    position:sticky; top:0; z-index:12;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:14px 18px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.12), transparent);
+    backdrop-filter: blur(6px) saturate(120%);
     border-bottom: 1px solid var(--border);
   }
-  #chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 16px 100px;
-    background: var(--chat-bg);
-    scroll-behavior: smooth;
+  .brand {
+    display:flex; align-items:center; gap:12px;
   }
-  .msg { display: flex; justify-content: flex-start; margin: 18px 0; animation: fadeIn 0.25s ease; }
-  .you { justify-content: flex-end; }
+  .logo {
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    object-fit:contain;
+    box-shadow: 0 6px 18px var(--accent-glow);
+    border-radius: 50%;
+  }
+  .title { font-weight:700; font-size:15px; letter-spacing:0.2px; }
+  .version { font-size:12px; color:var(--muted); margin-top:2px; }
+
+  .header-actions { display:flex; align-items:center; gap:8px; }
+
+  .toggle {
+    display:flex; align-items:center; gap:8px; background:var(--glass);
+    padding:6px 8px; border-radius:999px; border:1px solid var(--border);
+  }
+  .switch {
+    width:44px; height:26px; border-radius:999px; background:rgba(255,255,255,0.06); position:relative; cursor:pointer;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.25);
+  }
+  .knob {
+    width:20px; height:20px; border-radius:50%; background:#fff; position:absolute; top:3px; left:3px;
+    transition: all 260ms cubic-bezier(.2,.9,.2,1);
+    box-shadow: 0 4px 10px rgba(2,6,23,0.45);
+  }
+  .switch.on { background: linear-gradient(90deg, rgba(16,163,127,0.15), rgba(16,163,127,0.03)); }
+  .switch.on .knob { transform: translateX(18px); background: white; }
+
+  main { display:flex; flex:1; overflow:hidden; height:calc(100vh - 72px); }
+#chat {
+  flex: 1;
+  overflow: auto;
+  padding: 28px;
+  background: var(--chat-bg);
+  transition: background 360ms ease;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 100px; /* ⬅️ Tambahkan ini! */
+}
+
+  .msg { display:flex; margin:12px 0; gap:12px; align-items:flex-end; }
+  .msg.you { justify-content:flex-end; }
   .bubble {
-    max-width: 80%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    line-height: 1.55;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    font-size: 15px;
+    max-width:78%; padding:12px 14px; border-radius:var(--radius);
+    line-height:1.5; font-size:15px; word-wrap:break-word; white-space:pre-wrap;
+    border:1px solid var(--border); backdrop-filter: blur(6px) saturate(120%);
+    box-shadow: 0 6px 20px rgba(2,6,23,0.35);
+    transition: transform 220ms ease, box-shadow 220ms ease;
   }
-  .ai .bubble { background: var(--bubble-ai); border: 1px solid var(--border); border-top-left-radius: 4px; }
-  .you .bubble { background: var(--bubble-user); border: 1px solid #47484b; border-top-right-radius: 4px; }
+  .ai .bubble { background:var(--bubble-ai); border-top-left-radius:8px; }
+  .you .bubble { background:var(--bubble-user); border-top-right-radius:8px; transform: translateY(0); }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .bubble:hover { transform: translateY(-4px); }
 
-  #controls {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--bg);
-    border-top: 1px solid var(--border);
-    padding: 10px 14px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  textarea {
-    flex: 1;
-    resize: none;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    background: var(--chat-bg);
-    color: var(--text);
-    min-height: 44px;
-    max-height: 200px;
-    outline: none;
-    font-size: 15px;
-  }
-  textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 6px rgba(16,163,127,0.4);
-  }
-  button {
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  button:hover { filter: brightness(1.1); }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .typing { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; color:var(--muted); }
 
-  .icon-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--text);
-    font-size: 20px;
-    padding: 8px;
-  }
-  .icon-btn:hover { color: var(--accent); }
-
-  .typing { display: inline-block; font-family: monospace; white-space: pre-wrap; }
-
-  .bubble pre, .bubble code { background: #2f3032; border-radius: 6px; }
-  .bubble pre { padding: 10px; overflow-x: auto; }
-  .bubble code { padding: 2px 5px; }
-  .bubble a { color: var(--accent); text-decoration: none; }
+  /* code & pre */
+  .bubble pre, .bubble code { background: rgba(0,0,0,0.12); padding:6px 8px; border-radius:8px; font-family: ui-monospace, monospace; display:block; }
+  .bubble a { color:var(--accent); text-decoration:none; }
   .bubble a:hover { text-decoration: underline; }
 
-  .preview-img {
-    max-width: 220px;
-    border-radius: 10px;
-    margin-top: 6px;
-    display: block;
+  /* controls */
+  #controls {
+    position:fixed; left:0; right:0; bottom:0; padding:12px 16px;
+    display:flex; gap:10px; align-items:center; background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.03));
+    border-top:1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  textarea {
+    flex:1; resize:none; min-height:44px; max-height:220px; padding:12px 14px;
+    background: transparent; color:var(--text); border-radius:12px; border:1px solid var(--border); outline:none;
+    font-size:15px;
+  }
+  textarea::placeholder { color:var(--muted); opacity:0.9; }
+  .btn {
+    padding:10px 14px; border-radius:12px; border:none; background:linear-gradient(90deg,var(--accent), #0bb39a);
+    color:white; font-weight:600; cursor:pointer;
+  }
+  .icon-btn { background:transparent; border:none; color:var(--text); font-size:18px; cursor:pointer; padding:8px; border-radius:8px; }
+  .icon-btn:hover { background:var(--glass); }
+
+  /* modern scrollbar */
+  #chat::-webkit-scrollbar { width:10px; }
+  #chat::-webkit-scrollbar-thumb { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04)); border-radius:999px; border:2px solid transparent; background-clip: padding-box; }
+  #chat::-webkit-scrollbar-track { background:transparent; }
+
+  /* responsive */
+  @media (max-width:720px){
+    header{ padding:10px 12px; }
+    .logo{ width:36px; height:36px; }
+    .bubble{ max-width:88%; font-size:14px; }
+    #chat{ padding:16px; }
+    #controls{ padding:10px; }
   }
 
-  .file-name { font-size: 14px; color: #bbb; margin-top: 4px; }
+  /* small helper */
+  .muted { color:var(--muted); font-size:13px; }
+  .meta { font-size:12px; color:var(--muted); margin-left:8px; }
 
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+.bubble-appear {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: bubbleFadeSlide 0.28s ease forwards;
+}
 
-  .popup {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(30,30,30,0.95);
-    padding: 18px 28px;
-    border-radius: 12px;
-    color: #fff;
-    font-weight: 600;
-    font-size: 16px;
-    text-align: center;
+@keyframes bubbleFadeSlide {
+  from {
     opacity: 0;
-    pointer-events: none;
-    z-index: 1000;
-    animation: fadePopup 1.5s ease forwards;
+    transform: translateY(10px);
   }
-
-  @keyframes fadePopup {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -40%);
-  }
-  10% {
+  to {
     opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-  90% {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -60%);
+    transform: translateY(0);
   }
 }
 </style>
 </head>
 <body>
-  <header>DutaAI (v1.1)</header>
-  <div id="chat"></div>
+  <header>
+    <div class="brand">
+      <img src="DutaAI.png" alt="DutaAI Logo" class="logo">
+      <div>
+        <div class="title">DutaAI <span class="version">v1.2</span></div>
+        <div class="meta">AI Assistant</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="toggle" title="Mode Tema">
+        <div class="muted">Tema</div>
+        <div id="themeSwitch" class="switch" role="switch" aria-checked="false">
+          <div class="knob"></div>
+        </div>
+      </div>
+      <button id="clearBtn" class="icon-btn" title="Bersihkan chat">🧹</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="chat" aria-live="polite"></div>
+  </main>
 
   <div id="controls">
-    <button class="icon-btn" id="cameraBtn" title="Kamera">📷</button>
-    <button class="icon-btn" id="attachBtn" title="Lampirkan file">📎</button>
-    <textarea id="input" placeholder="Ketik pertanyaanmu..."></textarea>
-    <button id="send">Kirim</button>
-
-    <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display:none;">
-    <input type="file" id="fileInput" accept="image/*,.pdf,.txt,.doc,.docx" style="display:none;">
+    <button id="attachBtn" class="icon-btn" title="Lampirkan file">📎</button>
+    <textarea id="input" placeholder="Ketik pertanyaanmu..." rows="1"></textarea>
+    <button id="send" class="btn">Kirim</button>
   </div>
 
 <script>
-const API_KEY = "AIzaSyBf7Ge8bl35cU6pn-jfupewYEEsD1oprf0";
+/* ============ CONFIG ============ */
+const API_KEY = "AIzaSyBf7Ge8bl35cU6pn-jfupewYEEsD1oprf0"; // keep or replace
 const MODEL = "gemini-2.5-flash-lite";
+const COOLDOWN_TIME = 2; // detik
 
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const sendBtn = document.getElementById("send");
-const cameraBtn = document.getElementById("cameraBtn");
-const attachBtn = document.getElementById("attachBtn");
-const cameraInput = document.getElementById("cameraInput");
-const fileInput = document.getElementById("fileInput");
-
-let cooldownActive = false;
-const COOLDOWN_TIME = 3; // detik
-
+/* ============ SYSTEM PROMPT ============ */
 const SYSTEM_PROMPT = `
 Kamu adalah **DutaAI**, asisten cerdas yang dibuat oleh **Zaky (Tronsar)**.
 Berkomunikasilah dengan cara yang **sopan, ramah, informatif, dan efisien**.
@@ -258,135 +268,340 @@ Jadilah seperti ChatGPT versi lokal Indonesia — tapi dengan karakter:
 > Cerdas, sopan, natural, dan membantu tanpa bertele-tele.
 `;
 
-// Tambah pesan ke chat
-function append(role, content) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "msg " + (role === "user" ? "you" : "ai");
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
+/* ============ DOM ============ */
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("send");
+const themeSwitch = document.getElementById("themeSwitch");
+const clearBtn = document.getElementById("clearBtn");
+const attachBtn = document.getElementById("attachBtn");
 
-  if (typeof content === "string") {
+/* ============ THEME HANDLING ============ */
+// default: dark; allow toggle to light
+function setTheme(light){
+  if(light){
+    document.documentElement.classList.add('light');
+    themeSwitch.classList.add('on');
+    themeSwitch.setAttribute('aria-checked','true');
+  } else {
+    document.documentElement.classList.remove('light');
+    themeSwitch.classList.remove('on');
+    themeSwitch.setAttribute('aria-checked','false');
+  }
+  try { localStorage.setItem('duta-theme-light', light ? '1' : '0'); } catch(e){}
+}
+
+// restore theme
+(function(){
+  try {
+    const stored = localStorage.getItem('duta-theme-light');
+    if(stored === '1') setTheme(true);
+    else setTheme(false);
+  } catch(e){
+    setTheme(false);
+  }
+})();
+
+themeSwitch.addEventListener('click', () => {
+  const isLight = document.documentElement.classList.contains('light');
+  setTheme(!isLight);
+});
+
+/* ============ APP HELPERS ============ */
+function append(role, content, meta = {}) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg ' + (role === 'user' ? 'you' : 'ai');
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  if (typeof content === 'string') {
+    // jika konten tampak sudah di-escape (kebiasaan saat append user),
+    // kita masih masukkan sebagai HTML. Kalau kamu yakin ini plain text,
+    // gunakan bubble.textContent = content;
     bubble.innerHTML = content;
-  } else if (content.type === "image") {
-    const img = document.createElement("img");
+  } else if (content?.type === 'image') {
+    bubble.textContent = '📷 Foto:';
+    const img = document.createElement('img');
     img.src = content.src;
-    img.className = "preview-img";
-    bubble.textContent = "📷 Foto:";
+    img.className = 'preview-img';
+    img.style.maxWidth = '240px'; img.style.borderRadius = '10px'; img.style.marginTop = '8px';
     bubble.appendChild(img);
-  } else if (content.type === "file") {
-    bubble.innerHTML = `📎 File: <span class="file-name">${content.name}</span>`;
+  } else {
+    bubble.textContent = '📎 ' + (content.name || 'File');
   }
 
   wrapper.appendChild(bubble);
   chat.appendChild(wrapper);
-  chat.scrollTop = chat.scrollHeight;
+  smoothScrollToBottom();
+  return { wrapper, bubble };
 }
 
-// Efek mengetik satu per satu
-async function typeWriter(element, html) {
-  element.innerHTML = "";
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = html;
-  const text = tempDiv.textContent;
-  const words = text.split(/(\s+)/);
-  for (const word of words) {
-    element.innerHTML += word;
-    chat.scrollTop = chat.scrollHeight;
-    await new Promise(r => setTimeout(r, 40 + Math.random() * 40));
-  }
-  if (window.MathJax) MathJax.typesetPromise([element]);
-}
-
-// Kirim ke API Gemini
-async function sendPrompt(userText) {
-  if (cooldownActive) return; // cegah kirim jika cooldown aktif
-
-  append("user", userText);
+function appendAIBubble() {
   const wrapper = document.createElement("div");
-  wrapper.className = "msg ai";
-  const bubble = document.createElement("div");
-  bubble.className = "bubble typing";
-  bubble.textContent = "⏳ Sedang mengetik...";
-  wrapper.appendChild(bubble);
-  chat.appendChild(wrapper);
-  chat.scrollTop = chat.scrollHeight;
+  wrapper.className = "msg ai"; // konsisten dengan style .msg
 
+  const bubble = document.createElement("div");
+  bubble.className = "bubble ai bubble-appear";
+  // kosongkan isi — kita akan mengetik karakter demi karakter
+  // jangan isi placeholder seperti "Sedang mengetik..." (Mode B)
+
+  wrapper.appendChild(bubble);
+  chat.appendChild(wrapper); // gunakan 'chat', bukan chatContainer
+  smoothScrollToBottom();
+  return { wrapper, bubble };
+}
+
+/* Smooth scroll helper with easing */
+let scrolling = false;
+function smoothScrollTo(targetY, duration = 320) {
+  if (scrolling) return;
+  const start = chat.scrollTop;
+  const change = targetY - start;
+  const startTime = performance.now();
+  scrolling = true;
+  function easeInOutQuad(t){ return t<0.5 ? 2*t*t : -1 + (4-2*t)*t; }
+  function animate(now){
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    chat.scrollTop = start + change * easeInOutQuad(progress);
+    if (progress < 1) requestAnimationFrame(animate);
+    else scrolling = false;
+  }
+  requestAnimationFrame(animate);
+}
+function smoothScrollToBottom() {
+  if (!autoScrollEnabled) return; // ✅ jangan paksa scroll kalau user sedang melihat atas
+  const target = chat.scrollHeight - chat.clientHeight;
+  smoothScrollTo(target < 0 ? 0 : target, 300);
+}
+
+/* ============ Typing animation (improved) ============ */
+/*
+  Strategy:
+  - Convert AI output (raw text) to HTML via marked
+  - Extract visible text nodes and simulate word-by-word typing with punctuation-aware pauses
+  - Use small random delays to feel natural
+  - While typing, we keep smooth-scrolling to bottom
+*/
+async function typeWriter(bubble, html) {
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // parse HTML into a temp container
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  const nodes = Array.from(temp.childNodes);
+
+  let lastScroll = 0;
+  const throttle = 50;
+
+  // helper: ensure parent has a text node to append to, returns that text node
+  function ensureTextNode(parentEl) {
+    const last = parentEl.lastChild;
+    if (last && last.nodeType === Node.TEXT_NODE) return last;
+    const tn = document.createTextNode('');
+    parentEl.appendChild(tn);
+    return tn;
+  }
+
+  async function typeNode(node, parentEl) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.nodeValue;
+      // we will append to a real TextNode child under parentEl
+      let tnode = ensureTextNode(parentEl);
+      for (let i = 0; i < text.length; i++) {
+        tnode.nodeValue += text[i];
+
+        const now = Date.now();
+        if (now - lastScroll > throttle) {
+          lastScroll = now;
+          smoothScrollToBottom();
+        }
+
+        let delay = 10 + Math.random() * 16;
+        if (/[\.!?…]/.test(text[i])) delay += 160;
+        else if (/[,:;]/.test(text[i])) delay += 80;
+
+        await sleep(delay);
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      // create same tag and copy attributes
+      const el = document.createElement(node.tagName);
+      for (const attr of node.attributes) el.setAttribute(attr.name, attr.value);
+      parentEl.appendChild(el);
+
+      // recursively type children into the new element
+      for (const child of node.childNodes) {
+        await typeNode(child, el);
+      }
+    }
+  }
+
+  // type each top-level node into the bubble
+  for (const n of nodes) {
+    await typeNode(n, bubble);
+  }
+
+  // render math if present
+  if (window.MathJax?.typesetPromise) {
+    try { await MathJax.typesetPromise([bubble]); } catch(e){ /* ignore */ }
+  }
+
+  smoothScrollToBottom();
+}
+
+/* ============ Send to API (Gemini) ============ */
+let cooldownActive = false;
+function setCooldown(sec) {
+  cooldownActive = true;
   sendBtn.disabled = true;
   input.disabled = true;
-  cooldownActive = true;
+  const origText = sendBtn.textContent;
+  let remaining = sec;
+  sendBtn.textContent = `Cooldown (${remaining}s)`;
+  const iv = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(iv);
+      cooldownActive = false;
+      sendBtn.disabled = false;
+      input.disabled = false;
+      sendBtn.textContent = origText;
+    } else {
+      sendBtn.textContent = `Cooldown (${remaining}s)`;
+    }
+  }, 1000);
+}
+
+/* Main sending function */
+async function sendPrompt(userText) {
+  if (cooldownActive) return;
+  if (!userText || !userText.trim()) return;
+  // Append user bubble
+  append('user', escapeHtml(userText));
+  input.value = '';
+  setCooldown(COOLDOWN_TIME);
+
+  // Construct request payload for Gemini
+  const body = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: SYSTEM_PROMPT }, // 🧠 Tambahkan ini dulu
+          { text: userText }
+        ]
+      }
+    ]
+  };
 
   try {
-    const body = {
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: SYSTEM_PROMPT + "\n\nPertanyaan:\n" + userText }]
-        }
-      ]
-    };
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
       { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
     );
 
-    const data = await res.json();
-    const output = data.candidates?.[0]?.content?.parts?.map(p => p.text).join("") || "⚠️ Tidak ada respon dari AI.";
+    // handle non-JSON or error responses gracefully
+    if (!res.ok) {
+      const text = await res.text().catch(()=>null);
+      // create an AI bubble and show error
+      const { bubble } = appendAIBubble();
+      bubble.classList.remove('typing');
+      bubble.innerHTML = `❌ Error: ${res.status} ${res.statusText}` + (text ? `<div class="muted" style="margin-top:8px;font-size:13px">${escapeHtml(text)}</div>` : '');
+      return;
+    }
+
+    const data = await res.json().catch(() => null);
+    const output = data?.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || "⚠️ Tidak ada respon dari AI.";
     const htmlOutput = marked.parse(output);
-    bubble.textContent = "";
+
+    // Now create the AI bubble (Mode B) and start typing
+    const { bubble } = appendAIBubble();
     await typeWriter(bubble, htmlOutput);
 
   } catch (err) {
-    bubble.textContent = "❌ Error: " + err.message;
+    const { bubble } = appendAIBubble();
+    bubble.classList.remove('typing');
+    bubble.innerHTML = `❌ Error: ${escapeHtml(err?.message || String(err))}`;
   } finally {
-    startCooldown();
+    smoothScrollToBottom();
   }
 }
 
-// Jalankan cooldown agar user tidak bisa kirim selama waktu tertentu
-function startCooldown() {
-  let remaining = COOLDOWN_TIME;
-  sendBtn.disabled = true;
-  input.disabled = true;
-  sendBtn.textContent = `Cooldown (${remaining}s)`;
-
-  const interval = setInterval(() => {
-    remaining--;
-    sendBtn.textContent = `Cooldown (${remaining}s)`;
-    if (remaining <= 0) {
-      clearInterval(interval);
-      cooldownActive = false;
-      sendBtn.disabled = false;
-      input.disabled = false;
-      sendBtn.textContent = "Kirim";
-    }
-  }, 1000);
+/* ============ Utilities ============ */
+function escapeHtml(str){
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, function(m){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+  });
 }
 
-function showComingSoon() {
-  const popup = document.createElement("div");
-  popup.className = "popup";
-  popup.textContent = "Es A Be A Er, Sabar. Ane lagi ngebikin fitur ini!";
-  document.body.appendChild(popup);
-  setTimeout(() => popup.remove(), 1500);
-}
-
-// Kirim teks
-sendBtn.addEventListener("click", () => {
+/* ============ UI events ============ */
+sendBtn.addEventListener('click', () => {
   const text = input.value.trim();
   if (!text || cooldownActive) return;
   sendPrompt(text);
-  input.value = "";
 });
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter" && !e.shiftKey) {
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     sendBtn.click();
   }
 });
 
-// Kamera dan file
-cameraBtn.addEventListener("click", showComingSoon);
-attachBtn.addEventListener("click", showComingSoon);
+clearBtn.addEventListener('click', () => {
+  chat.innerHTML = '';
+  smoothScrollToBottom();
+});
+
+attachBtn.addEventListener('click', () => {
+  // placeholder for future attach feature
+  showToast('Es A Be A Er, Sabar. Ane lagi bikin fiturnya!');
+});
+
+/* tiny toast popup */
+function showToast(msg, ttl=1500) {
+  const popup = document.createElement('div');
+  popup.style.position='fixed';
+  popup.style.left='50%';
+  popup.style.top='20%';
+  popup.style.transform='translateX(-50%)';
+  popup.style.background='rgba(0,0,0,0.7)';
+  popup.style.color='white';
+  popup.style.padding='10px 14px';
+  popup.style.borderRadius='10px';
+  popup.style.zIndex=9999;
+  popup.style.fontWeight=600;
+  popup.textContent = msg;
+  document.body.appendChild(popup);
+  setTimeout(()=> popup.style.opacity='0', ttl-200);
+  setTimeout(()=> popup.remove(), ttl);
+}
+
+/* ensure input auto-resize */
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(220, input.scrollHeight) + 'px';
+});
+
+/* initial focus */
+setTimeout(()=> input.focus(), 300);
+
+/* accessibility: press "/" to focus input */
+window.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== input) {
+    e.preventDefault();
+    input.focus();
+  }
+});
+
+/* ===== Scroll Control ===== */
+let autoScrollEnabled = true;
+
+chat.addEventListener("scroll", () => {
+  const atBottom = chat.scrollHeight - chat.scrollTop <= chat.clientHeight + 40;
+  autoScrollEnabled = atBottom;
+});
 </script>
 </body>
 </html>
