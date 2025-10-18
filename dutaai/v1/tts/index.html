@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Indo TTS — Gratis di Browser</title>
+  <style>
+    :root{--bg:#0b1020;--card:#0f1724;--accent:#7c3aed;--muted:#9aa4b2}
+    *{box-sizing:border-box}
+    body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg,#05060a 0%, #0b1020 100%); color:#e6eef8; padding:28px}
+    .wrap{max-width:820px;margin:0 auto}
+    header{display:flex;gap:12px;align-items:center}
+    h1{font-size:20px;margin:0}
+    p.lead{color:var(--muted);margin:6px 0 18px}
+    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,.6)}
+    textarea{width:100%;min-height:140px;background:transparent;border:1px solid rgba(255,255,255,.06);padding:12px;border-radius:8px;color:inherit;font-size:15px}
+    .row{display:flex;gap:10px;margin-top:12px}
+    .col{flex:1}
+    select,input[type=range]{width:100%;background:transparent;color:inherit}
+    button{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;color:white;font-weight:600;cursor:pointer}
+    small{color:var(--muted)}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .footer{font-size:13px;color:var(--muted);margin-top:14px}
+    .voices-list{max-height:120px;overflow:auto;margin-top:10px;border-radius:8px;padding:8px;border:1px dashed rgba(255,255,255,.03)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Indo TTS — Gratis di Browser</h1>
+        <p class="lead">TTS Bahasa Indonesia simpel & gratis. Works offline (pakai Web Speech API) — no API key.</p>
+      </div>
+    </header>
+
+    <section class="card" id="app">
+      <label for="text"><strong>Masukkan teks (Bahasa Indonesia)</strong></label>
+      <textarea id="text" placeholder="Ketik atau tempel teks Indo di sini...">Halo! Ini contoh suara Bahasa Indonesia dari Web Speech API. Coba ganti teksnya ya.</textarea>
+
+      <div class="controls">
+        <div>
+          <label>Voice</label>
+          <select id="voices"></select>
+          <div class="voices-list" id="voiceInfo"></div>
+        </div>
+        <div>
+          <label>Pitch <small id="pitchVal">1</small></label>
+          <input id="pitch" type="range" min="0" max="2" step="0.1" value="1">
+          <label>Rate <small id="rateVal">1</small></label>
+          <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <div class="col">
+          <button id="speak">▶️ Speak</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button id="pause">⏸️ Pause</button>
+          <button id="resume">▶️ Resume</button>
+          <button id="cancel">✖️ Stop</button>
+        </div>
+      </div>
+
+      <div class="footer">
+        Tips: Pilih voice dengan bahasa <code>id</code> atau yang mengandung "Indonesian" / "Bahasa Indonesia" supaya pelafalan lebih akurat.
+      </div>
+    </section>
+  </div>
+
+<script>
+// Simple Indonesian TTS using Web Speech API
+const synth = window.speechSynthesis;
+const voicesSelect = document.getElementById('voices');
+const textEl = document.getElementById('text');
+const pitch = document.getElementById('pitch');
+const rate = document.getElementById('rate');
+const pitchVal = document.getElementById('pitchVal');
+const rateVal = document.getElementById('rateVal');
+const voiceInfo = document.getElementById('voiceInfo');
+let voices = [];
+
+function populateVoices(){
+  voices = synth.getVoices() || [];
+  voicesSelect.innerHTML = '';
+  // prefer Indonesian voices first
+  const idVoices = voices.filter(v => /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
+  const other = voices.filter(v => !idVoices.includes(v));
+  const sorted = idVoices.concat(other);
+  sorted.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} — ${v.lang}`;
+    voicesSelect.appendChild(opt);
+  });
+  if(sorted.length===0){
+    voicesSelect.innerHTML = '<option value="-1">(No voices available)</option>';
+    voiceInfo.textContent = 'Browser kamu tidak menyediakan Web Speech voices. Coba Chrome/Edge terbaru atau ikuti instruksi fallback di README.';
+  } else {
+    updateVoiceInfo(sorted[0]);
+  }
+}
+
+function updateVoiceInfo(v){
+  voiceInfo.innerHTML = `<strong>${v.name}</strong><br>Locale: ${v.lang}<br>URI: ${v.voiceURI || '—'}`;
+}
+
+synth.onvoiceschanged = () => {
+  populateVoices();
+};
+
+voicesSelect.addEventListener('change', ()=>{
+  const idx = parseInt(voicesSelect.value);
+  const v = synth.getVoices().filter(v=> /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
+  // pick from combined list like populateVoices
+  const all = synth.getVoices();
+  const idVoices = all.filter(v => /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
+  const other = all.filter(v => !idVoices.includes(v));
+  const sorted = idVoices.concat(other);
+  if(sorted[idx]) updateVoiceInfo(sorted[idx]);
+});
+
+pitch.addEventListener('input', ()=>{pitchVal.textContent = pitch.value});
+rate.addEventListener('input', ()=>{rateVal.textContent = rate.value});
+
+function speak(){
+  if(synth.speaking) { console.warn('already speaking'); return }
+  const text = textEl.value.trim();
+  if(!text) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'id-ID';
+  // select chosen voice if compatible
+  const all = synth.getVoices();
+  const idVoices = all.filter(v => /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
+  const other = all.filter(v => !idVoices.includes(v));
+  const sorted = idVoices.concat(other);
+  const pick = sorted[parseInt(voicesSelect.value)];
+  if(pick) utter.voice = pick;
+  utter.pitch = parseFloat(pitch.value);
+  utter.rate = parseFloat(rate.value);
+  utter.onstart = ()=> console.log('start');
+  utter.onend = ()=> console.log('done');
+  synth.speak(utter);
+}
+
+document.getElementById('speak').addEventListener('click', speak);
+document.getElementById('pause').addEventListener('click', ()=>{ if(synth.speaking) synth.pause() });
+document.getElementById('resume').addEventListener('click', ()=>{ if(synth.paused) synth.resume() });
+document.getElementById('cancel').addEventListener('click', ()=>{ synth.cancel() });
+
+// Try populate at load (some browsers populate asynchronously)
+setTimeout(()=>{ populateVoices(); }, 200);
+</script>
+</body>
+</html>

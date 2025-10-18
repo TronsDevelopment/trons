@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DutaAI — Chat Lokal</title>
+
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<!-- Markdown parser -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+  :root {
+    --bg: #131314;
+    --chat-bg: #1e1f20;
+    --bubble-ai: #2a2b2e;
+    --bubble-user: #3b3c40;
+    --text: #e5e5e5;
+    --accent: #10a37f;
+    --border: #2c2c2c;
+  }
+  * { box-sizing: border-box; transition: all 0.2s ease; }
+  body {
+    margin: 0;
+    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: center;
+    padding: 16px;
+    font-weight: 600;
+    font-size: 18px;
+    background: linear-gradient(180deg, #131314 40%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 16px 100px;
+    background: var(--chat-bg);
+    scroll-behavior: smooth;
+  }
+  .msg { display: flex; justify-content: flex-start; margin: 18px 0; animation: fadeIn 0.25s ease; }
+  .you { justify-content: flex-end; }
+  .bubble {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    line-height: 1.55;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    font-size: 15px;
+  }
+  .ai .bubble { background: var(--bubble-ai); border: 1px solid var(--border); border-top-left-radius: 4px; }
+  .you .bubble { background: var(--bubble-user); border: 1px solid #47484b; border-top-right-radius: 4px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #controls {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  textarea {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: var(--chat-bg);
+    color: var(--text);
+    min-height: 44px;
+    max-height: 200px;
+    outline: none;
+    font-size: 15px;
+  }
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 6px rgba(16,163,127,0.4);
+  }
+  button {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { filter: brightness(1.1); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 20px;
+    padding: 8px;
+  }
+  .icon-btn:hover { color: var(--accent); }
+
+  .typing { display: inline-block; font-family: monospace; white-space: pre-wrap; }
+
+  .bubble pre, .bubble code { background: #2f3032; border-radius: 6px; }
+  .bubble pre { padding: 10px; overflow-x: auto; }
+  .bubble code { padding: 2px 5px; }
+  .bubble a { color: var(--accent); text-decoration: none; }
+  .bubble a:hover { text-decoration: underline; }
+
+  .preview-img {
+    max-width: 220px;
+    border-radius: 10px;
+    margin-top: 6px;
+    display: block;
+  }
+
+  .file-name { font-size: 14px; color: #bbb; margin-top: 4px; }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+  .popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30,30,30,0.95);
+    padding: 18px 28px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+    animation: fadePopup 1.5s ease forwards;
+  }
+
+  @keyframes fadePopup {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  90% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+}
+</style>
+</head>
+<body>
+  <header>DutaAI (v1.1)</header>
+  <div id="chat"></div>
+
+  <div id="controls">
+    <button class="icon-btn" id="cameraBtn" title="Kamera">📷</button>
+    <button class="icon-btn" id="attachBtn" title="Lampirkan file">📎</button>
+    <textarea id="input" placeholder="Ketik pertanyaanmu..."></textarea>
+    <button id="send">Kirim</button>
+
+    <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display:none;">
+    <input type="file" id="fileInput" accept="image/*,.pdf,.txt,.doc,.docx" style="display:none;">
+  </div>
+
+<script>
+const API_KEY = "AIzaSyBf7Ge8bl35cU6pn-jfupewYEEsD1oprf0";
+const MODEL = "gemini-2.5-flash-lite";
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("send");
+const cameraBtn = document.getElementById("cameraBtn");
+const attachBtn = document.getElementById("attachBtn");
+const cameraInput = document.getElementById("cameraInput");
+const fileInput = document.getElementById("fileInput");
+
+let cooldownActive = false;
+const COOLDOWN_TIME = 3; // detik
+
+const SYSTEM_PROMPT = `Kamu adalah DutaAI, asisten cerdas buatan Zaky...`;
+
+// Tambah pesan ke chat
+function append(role, content) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "msg " + (role === "user" ? "you" : "ai");
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+
+  if (typeof content === "string") {
+    bubble.innerHTML = content;
+  } else if (content.type === "image") {
+    const img = document.createElement("img");
+    img.src = content.src;
+    img.className = "preview-img";
+    bubble.textContent = "📷 Foto:";
+    bubble.appendChild(img);
+  } else if (content.type === "file") {
+    bubble.innerHTML = `📎 File: <span class="file-name">${content.name}</span>`;
+  }
+
+  wrapper.appendChild(bubble);
+  chat.appendChild(wrapper);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// Efek mengetik satu per satu
+async function typeWriter(element, html) {
+  element.innerHTML = "";
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  const text = tempDiv.textContent;
+  const words = text.split(/(\s+)/);
+  for (const word of words) {
+    element.innerHTML += word;
+    chat.scrollTop = chat.scrollHeight;
+    await new Promise(r => setTimeout(r, 40 + Math.random() * 40));
+  }
+  if (window.MathJax) MathJax.typesetPromise([element]);
+}
+
+// Kirim ke API Gemini
+async function sendPrompt(userText) {
+  if (cooldownActive) return; // cegah kirim jika cooldown aktif
+
+  append("user", userText);
+  const wrapper = document.createElement("div");
+  wrapper.className = "msg ai";
+  const bubble = document.createElement("div");
+  bubble.className = "bubble typing";
+  bubble.textContent = "⏳ Sedang mengetik...";
+  wrapper.appendChild(bubble);
+  chat.appendChild(wrapper);
+  chat.scrollTop = chat.scrollHeight;
+
+  sendBtn.disabled = true;
+  input.disabled = true;
+  cooldownActive = true;
+
+  try {
+    const body = {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: SYSTEM_PROMPT + "\n\nPertanyaan:\n" + userText }]
+        }
+      ]
+    };
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+    );
+
+    const data = await res.json();
+    const output = data.candidates?.[0]?.content?.parts?.map(p => p.text).join("") || "⚠️ Tidak ada respon dari AI.";
+    const htmlOutput = marked.parse(output);
+    bubble.textContent = "";
+    await typeWriter(bubble, htmlOutput);
+
+  } catch (err) {
+    bubble.textContent = "❌ Error: " + err.message;
+  } finally {
+    startCooldown();
+  }
+}
+
+// Jalankan cooldown agar user tidak bisa kirim selama waktu tertentu
+function startCooldown() {
+  let remaining = COOLDOWN_TIME;
+  sendBtn.disabled = true;
+  input.disabled = true;
+  sendBtn.textContent = `Cooldown (${remaining}s)`;
+
+  const interval = setInterval(() => {
+    remaining--;
+    sendBtn.textContent = `Cooldown (${remaining}s)`;
+    if (remaining <= 0) {
+      clearInterval(interval);
+      cooldownActive = false;
+      sendBtn.disabled = false;
+      input.disabled = false;
+      sendBtn.textContent = "Kirim";
+    }
+  }, 1000);
+}
+
+function showComingSoon() {
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.textContent = "Es A Be A Er, Sabar. Ane lagi ngebikin fitur ini!";
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1500);
+}
+
+// Kirim teks
+sendBtn.addEventListener("click", () => {
+  const text = input.value.trim();
+  if (!text || cooldownActive) return;
+  sendPrompt(text);
+  input.value = "";
+});
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendBtn.click();
+  }
+});
+
+// Kamera dan file
+cameraBtn.addEventListener("click", showComingSoon);
+attachBtn.addEventListener("click", showComingSoon);
+</script>
+</body>
+</html>
