@@ -372,6 +372,22 @@
     .muted{color:var(--muted)}
     .row{display:flex; gap:12px; align-items:center}
     .spacer{flex:1}
+
+.version {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 12px;
+  letter-spacing: 0.6px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+  margin-top: 12px;
+  text-align: center;
+  width: fit-content;
+}
   </style>
 
   <script type="application/ld+json">
@@ -554,10 +570,10 @@
           <div class="card-body">
             <h3 class="card-title">Note App</h3>
             <p class="card-desc">Minimal notes with tags, local sync, and keyboard shortcuts (demo).</p>
-            <div class="card-meta"><span class="pill">App</span><span class="pill muted">PWA</span></div>
+            <div class="card-meta"><span class="pill">App</span><span class="pill muted">Python</span></div>
             <div class="card-actions">
-              <button class="btn small try-btn" data-demo="note">Try</button>
-              <button class="btn ghost small details-btn" data-url="https://github.com/tronsar/note-app">Details</button>
+              <button class="btn small try-btn" data-demo="note">Download</button>
+              <button class="btn ghost small details-btn" data-url="#">Preview</button>
             </div>
           </div>
         </article>
@@ -647,12 +663,25 @@
 
         <div class="project-card">
           <div>
-            <h3>DutaStatsV1.5</h3>
+            <h3>DutaStats</h3>
             <p class="project-desc">API & dashboard for Minecraft server statistics, supporting Velocity/Bungee and custom scrapers for popular servers.</p>
+            <p class="version">1.5</p>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
             <div class="project-tags"><span class="pill">API</span><span class="pill muted">Python</span></div>
             <div><a class="btn small" href="docs/api/dutastats/">Docs</a></div>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div>
+            <h3>DutaAI</h3>
+            <p class="project-desc">Web AI assistant.</p>
+            <p class="version">1.1</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
+            <div class="project-tags"><span class="pill">AI</span><span class="pill muted">ChatBot</span></div>
+            <div><a class="btn small" href="dutaai/v1/chat/">Chat</a></div>
           </div>
         </div>
 
@@ -960,7 +989,7 @@
 
     // copy email helper
     function copyEmail(){
-      const text = 'hello@tronsar.dev';
+      const text = 'esrjoo841@gmail.com';
       navigator.clipboard?.writeText(text).then(()=> {
         const el = document.getElementById('contactStatus');
         if(el) el.textContent = 'Email copied to clipboard';
