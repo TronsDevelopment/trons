@@ -321,6 +321,92 @@
   backdrop-filter: blur(8px);
   animation: toastIn 0.4s cubic-bezier(.25,.9,.3,1.2) forwards;
 }
+
+/* ✅ Responsive overhaul */
+@media (max-width: 720px) {
+  header {
+    padding: 10px 12px;
+  }
+
+  .logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .bubble {
+    max-width: 90%;
+    font-size: 14px;
+    padding: 10px 12px;
+    line-height: 1.45;
+  }
+
+  #chat {
+    padding: 12px;
+    height: auto; /* biar adaptif */
+    min-height: calc(100dvh - 150px);
+  }
+
+  #controls {
+    position: sticky;
+    bottom: 0;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  textarea {
+    font-size: 14px;
+    min-height: 40px;
+    max-height: 180px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .icon-btn {
+    padding: 10px;
+    font-size: 20px;
+  }
+
+  /* ✅ Fix untuk loading screen di mobile */
+  .terminal-boot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+  }
+  .boot-lines {
+    font-size: 12px;
+  }
+  .boot-right {
+    display: none;
+  }
+}
+
+/* ✅ Biar input ga ketiban keyboard */
+@supports (-webkit-touch-callout: none) {
+  #controls {
+    position: fixed;
+    inset-inline: 0;
+    bottom: env(safe-area-inset-bottom);
+  }
+
+  textarea:focus {
+    scroll-margin-bottom: 140px; /* ngasih jarak biar tetep kelihatan */
+  }
+}
+
+/* ✅ Small phones */
+@media (max-width: 400px) {
+  .bubble {
+    max-width: 94%;
+    font-size: 13px;
+  }
+  textarea {
+    font-size: 13px;
+  }
+}
 </style>
 </head>
 <body>
@@ -754,6 +840,14 @@ window.addEventListener('keydown', (e) => {
 
 /* ===== Scroll Control ===== */
 let autoScrollEnabled = true;
+
+window.addEventListener('resize', () => {
+  if (document.activeElement === input) {
+    setTimeout(() => {
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+  }
+});
 </script>
 
 <script src="loader.js"></script>
