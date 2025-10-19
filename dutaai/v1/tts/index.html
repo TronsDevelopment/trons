@@ -2,154 +2,281 @@
 <html lang="id">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Indo TTS — Gratis di Browser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DutaAI - TTS</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0b1020',
+            card: '#111827',
+            accent: '#7c3aed',
+            muted: '#9aa4b2',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Custom Styles -->
   <style>
-    :root{--bg:#0b1020;--card:#0f1724;--accent:#7c3aed;--muted:#9aa4b2}
-    *{box-sizing:border-box}
-    body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg,#05060a 0%, #0b1020 100%); color:#e6eef8; padding:28px}
-    .wrap{max-width:820px;margin:0 auto}
-    header{display:flex;gap:12px;align-items:center}
-    h1{font-size:20px;margin:0}
-    p.lead{color:var(--muted);margin:6px 0 18px}
-    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,.6)}
-    textarea{width:100%;min-height:140px;background:transparent;border:1px solid rgba(255,255,255,.06);padding:12px;border-radius:8px;color:inherit;font-size:15px}
-    .row{display:flex;gap:10px;margin-top:12px}
-    .col{flex:1}
-    select,input[type=range]{width:100%;background:transparent;color:inherit}
-    button{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;color:white;font-weight:600;cursor:pointer}
-    small{color:var(--muted)}
-    .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-    .footer{font-size:13px;color:var(--muted);margin-top:14px}
-    .voices-list{max-height:120px;overflow:auto;margin-top:10px;border-radius:8px;padding:8px;border:1px dashed rgba(255,255,255,.03)}
+    /* Select styling */
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: transparent;
+      background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%239aa4b2' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E<path stroke-linecap='round' stroke-linejoin='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.8rem center;
+      background-size: 1rem;
+      border: 1px solid #374151;
+      border-radius: 0.5rem;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      width: 100%;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 2px #7c3aed55;
+      transition: 0.2s;
+    }
+
+    option {
+      background-color: #111827;
+      color: #e5e7eb;
+    }
+
+    /* Loading animation */
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: scale(1); }
+      80% { opacity: 0; transform: scale(1.05); }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    @keyframes fadeText {
+      0% { opacity: 0; letter-spacing: 0.5em; filter: blur(8px); }
+      50% { opacity: 1; letter-spacing: 0.3em; filter: blur(2px); }
+      100% { opacity: 1; letter-spacing: 0.25em; filter: blur(0); }
+    }
+
+    .animate-fade {
+      animation: fadeText 1.5s ease-out forwards;
+    }
   </style>
 </head>
-<body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Indo TTS — Gratis di Browser</h1>
-        <p class="lead">TTS Bahasa Indonesia simpel & gratis. Works offline (pakai Web Speech API) — no API key.</p>
-      </div>
+
+<body class="bg-bg text-gray-100 min-h-screen flex items-center justify-center p-6">
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-[#0b1020] flex items-center justify-center z-50">
+    <h1 class="text-4xl md:text-5xl font-bold text-white tracking-[0.25em] animate-fade">
+      Duta<span class="text-violet-500">AI</span>
+    </h1>
+  </div>
+
+  <!-- Main Container -->
+  <div class="max-w-2xl w-full">
+    <header class="mb-6 text-center">
+      <h1 class="text-2xl font-bold mb-2">DutaAI - TTS</h1>
+      <p class="text-muted text-sm">TTS Bahasa Indonesia ringan & gratis.</p>
     </header>
 
-    <section class="card" id="app">
-      <label for="text"><strong>Masukkan teks (Bahasa Indonesia)</strong></label>
-      <textarea id="text" placeholder="Ketik atau tempel teks Indo di sini...">Halo! Ini contoh suara Bahasa Indonesia dari Web Speech API. Coba ganti teksnya ya.</textarea>
+    <section class="bg-card rounded-2xl shadow-2xl p-6 border border-gray-800">
+      <!-- Text Input -->
+      <label for="text" class="block font-semibold mb-2">Masukkan teks Bahasa Indonesia</label>
+      <textarea id="text"
+        class="w-full rounded-xl bg-transparent border border-gray-700 focus:border-accent focus:ring-accent p-3 text-sm h-36 resize-none"
+        placeholder="Ketik atau tempel teks di sini...">Halo! Selamat pagi ato siang ato malem eta weh pokokna, ganti/edit bagian ini dan masukkan teks kamu!</textarea>
 
-      <div class="controls">
+      <!-- Settings -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
         <div>
-          <label>Voice</label>
-          <select id="voices"></select>
-          <div class="voices-list" id="voiceInfo"></div>
+          <label class="block font-medium mb-1">Mode TTS</label>
+          <select id="ttsMode" class="w-full bg-transparent border border-gray-700 rounded-lg p-2 text-sm focus:border-accent focus:ring-accent">
+            <option value="browser">Browser (Web Speech API)</option>
+            <option value="streamelements">StreamElements API</option>
+          </select>
+
+          <!-- Browser Section -->
+          <div id="browserSection" class="mt-4">
+            <label class="block font-medium mb-1">Pilih Voice (Browser)</label>
+            <select id="voices" class="w-full bg-transparent border border-gray-700 rounded-lg p-2 text-sm focus:border-accent focus:ring-accent"></select>
+            <div id="voiceInfo" class="max-h-32 overflow-y-auto mt-3 p-3 text-xs border border-dashed border-gray-700 rounded-lg text-muted"></div>
+          </div>
+
+          <!-- StreamElements Section -->
+          <div id="seSection" class="hidden mt-4">
+            <label class="block font-medium mb-1">Pilih Voice (StreamElements)</label>
+            <select id="seVoices" class="w-full bg-transparent border border-gray-700 rounded-lg p-2 text-sm focus:border-accent focus:ring-accent">
+              <option value="id-ID-Wavenet-A">id-ID-Wavenet-A (Laki-laki)</option>
+              <option value="id-ID-Wavenet-B">id-ID-Wavenet-B (Perempuan)</option>
+              <option value="id-ID-Wavenet-C">id-ID-Wavenet-C (Natural)</option>
+            </select>
+            <div id="seVoiceInfo" class="max-h-32 overflow-y-auto mt-3 p-3 text-xs border border-dashed border-gray-700 rounded-lg text-muted"></div>
+          </div>
         </div>
+
         <div>
-          <label>Pitch <small id="pitchVal">1</small></label>
-          <input id="pitch" type="range" min="0" max="2" step="0.1" value="1">
-          <label>Rate <small id="rateVal">1</small></label>
-          <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1">
+          <label class="block font-medium mb-1">Pitch <small id="pitchVal" class="text-muted">1</small></label>
+          <input id="pitch" type="range" min="0" max="2" step="0.1" value="1" class="w-full accent-accent">
+          <label class="block font-medium mt-3 mb-1">Kecepatan <small id="rateVal" class="text-muted">1</small></label>
+          <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1" class="w-full accent-accent">
         </div>
       </div>
 
-      <div class="row" style="margin-top:14px">
-        <div class="col">
-          <button id="speak">▶️ Speak</button>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button id="pause">⏸️ Pause</button>
-          <button id="resume">▶️ Resume</button>
-          <button id="cancel">✖️ Stop</button>
-        </div>
+      <!-- Control Buttons -->
+      <div class="flex flex-wrap gap-3 mt-6">
+        <button id="speak" class="flex-1 bg-accent hover:bg-violet-600 transition font-semibold py-2 rounded-xl">▶️ Bicara</button>
+        <button id="pause" class="flex-1 bg-gray-700 hover:bg-gray-600 transition font-semibold py-2 rounded-xl">⏸️ Jeda</button>
+        <button id="resume" class="flex-1 bg-gray-700 hover:bg-gray-600 transition font-semibold py-2 rounded-xl">▶️ Lanjut</button>
+        <button id="cancel" class="flex-1 bg-red-700 hover:bg-red-600 transition font-semibold py-2 rounded-xl">✖️ Berhenti</button>
       </div>
 
-      <div class="footer">
-        Tips: Pilih voice dengan bahasa <code>id</code> atau yang mengandung "Indonesian" / "Bahasa Indonesia" supaya pelafalan lebih akurat.
-      </div>
+      <!-- Footer Info -->
+      <p class="text-muted text-xs mt-5 text-center">
+        Untuk sekarang, support:
+        <br><code>Chrome/Edge</code> untuk Browser TTS, atau <code>StreamElements API</code> untuk universal playback.
+      </p>
     </section>
   </div>
 
-<script>
-// Simple Indonesian TTS using Web Speech API
-const synth = window.speechSynthesis;
-const voicesSelect = document.getElementById('voices');
-const textEl = document.getElementById('text');
-const pitch = document.getElementById('pitch');
-const rate = document.getElementById('rate');
-const pitchVal = document.getElementById('pitchVal');
-const rateVal = document.getElementById('rateVal');
-const voiceInfo = document.getElementById('voiceInfo');
-let voices = [];
+  <!-- Scripts -->
+  <script>
+    // === Browser Web Speech API ===
+    const synth = window.speechSynthesis;
+    const textEl = document.getElementById('text');
+    const voicesSelect = document.getElementById('voices');
+    const pitch = document.getElementById('pitch');
+    const rate = document.getElementById('rate');
+    const pitchVal = document.getElementById('pitchVal');
+    const rateVal = document.getElementById('rateVal');
+    const voiceInfo = document.getElementById('voiceInfo');
+    const ttsMode = document.getElementById('ttsMode');
+    const seVoices = document.getElementById('seVoices');
+    const seVoiceInfo = document.getElementById('seVoiceInfo');
+    let voices = [];
 
-function populateVoices(){
-  voices = synth.getVoices() || [];
-  voicesSelect.innerHTML = '';
-  // prefer Indonesian voices first
-  const idVoices = voices.filter(v => /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
-  const other = voices.filter(v => !idVoices.includes(v));
-  const sorted = idVoices.concat(other);
-  sorted.forEach((v, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = `${v.name} — ${v.lang}`;
-    voicesSelect.appendChild(opt);
-  });
-  if(sorted.length===0){
-    voicesSelect.innerHTML = '<option value="-1">(No voices available)</option>';
-    voiceInfo.textContent = 'Browser kamu tidak menyediakan Web Speech voices. Coba Chrome/Edge terbaru atau ikuti instruksi fallback di README.';
-  } else {
-    updateVoiceInfo(sorted[0]);
-  }
-}
+    function populateVoices() {
+      const allVoices = synth.getVoices();
+      voices = allVoices.filter(v => /^id(-[A-Z]+)?$/i.test(v.lang));
+      voicesSelect.innerHTML = '';
 
-function updateVoiceInfo(v){
-  voiceInfo.innerHTML = `<strong>${v.name}</strong><br>Locale: ${v.lang}<br>URI: ${v.voiceURI || '—'}`;
-}
+      if (voices.length === 0) {
+        voicesSelect.innerHTML = '<option value="-1">❌ Tidak ada voice Bahasa Indonesia</option>';
+        voiceInfo.innerHTML = 'Browser kamu belum menyediakan voice Bahasa Indonesia.<br>Coba gunakan Chrome/Edge terbaru.';
+        return;
+      }
 
-synth.onvoiceschanged = () => {
-  populateVoices();
-};
+      voices.forEach((v, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${v.name} — ${v.lang}`;
+        voicesSelect.appendChild(opt);
+      });
+      updateVoiceInfo(voices[0]);
+    }
 
-voicesSelect.addEventListener('change', ()=>{
-  const idx = parseInt(voicesSelect.value);
-  const v = synth.getVoices().filter(v=> /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
-  // pick from combined list like populateVoices
-  const all = synth.getVoices();
-  const idVoices = all.filter(v => /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
-  const other = all.filter(v => !idVoices.includes(v));
-  const sorted = idVoices.concat(other);
-  if(sorted[idx]) updateVoiceInfo(sorted[idx]);
-});
+    function updateVoiceInfo(v) {
+      voiceInfo.innerHTML = `<strong>${v.name}</strong><br>Locale: ${v.lang}<br>URI: ${v.voiceURI || '—'}`;
+    }
 
-pitch.addEventListener('input', ()=>{pitchVal.textContent = pitch.value});
-rate.addEventListener('input', ()=>{rateVal.textContent = rate.value});
+    synth.onvoiceschanged = populateVoices;
 
-function speak(){
-  if(synth.speaking) { console.warn('already speaking'); return }
-  const text = textEl.value.trim();
-  if(!text) return;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'id-ID';
-  // select chosen voice if compatible
-  const all = synth.getVoices();
-  const idVoices = all.filter(v => /id|indonesian|bahasa/i.test(v.lang + ' ' + v.name));
-  const other = all.filter(v => !idVoices.includes(v));
-  const sorted = idVoices.concat(other);
-  const pick = sorted[parseInt(voicesSelect.value)];
-  if(pick) utter.voice = pick;
-  utter.pitch = parseFloat(pitch.value);
-  utter.rate = parseFloat(rate.value);
-  utter.onstart = ()=> console.log('start');
-  utter.onend = ()=> console.log('done');
-  synth.speak(utter);
-}
+    voicesSelect.addEventListener('change', () => {
+      const v = voices[parseInt(voicesSelect.value)];
+      if (v) updateVoiceInfo(v);
+    });
 
-document.getElementById('speak').addEventListener('click', speak);
-document.getElementById('pause').addEventListener('click', ()=>{ if(synth.speaking) synth.pause() });
-document.getElementById('resume').addEventListener('click', ()=>{ if(synth.paused) synth.resume() });
-document.getElementById('cancel').addEventListener('click', ()=>{ synth.cancel() });
+    // === StreamElements Voice Info ===
+    const seVoiceData = {
+      "id-ID-Wavenet-A": {
+        name: "Wavenet A",
+        gender: "Laki-laki",
+        tone: "Suara tegas dan formal, cocok buat narasi atau pembacaan berita."
+      },
+      "id-ID-Wavenet-B": {
+        name: "Wavenet B",
+        gender: "Perempuan",
+        tone: "Suara lembut dan ekspresif, cocok buat asisten virtual atau percakapan santai."
+      },
+      "id-ID-Wavenet-C": {
+        name: "Wavenet C",
+        gender: "Netral",
+        tone: "Suara natural dengan tone seimbang, cocok buat konten umum dan video AI."
+      }
+    };
 
-// Try populate at load (some browsers populate asynchronously)
-setTimeout(()=>{ populateVoices(); }, 200);
-</script>
+    function updateSEVoiceInfo(id) {
+      const v = seVoiceData[id];
+      if (v) {
+        seVoiceInfo.innerHTML = `<strong>${v.name}</strong><br>Gender: ${v.gender}<br>Karakter: ${v.tone}`;
+      }
+    }
+
+    seVoices.addEventListener('change', () => updateSEVoiceInfo(seVoices.value));
+    updateSEVoiceInfo(seVoices.value);
+
+    // === Pitch & Rate ===
+    pitch.addEventListener('input', () => pitchVal.textContent = pitch.value);
+    rate.addEventListener('input', () => rateVal.textContent = rate.value);
+
+    // === StreamElements API ===
+    async function playStreamElementsTTS(text, voice) {
+      const url = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(text)}`;
+      const audio = new Audio(url);
+      audio.play().catch(() => alert("Gagal memutar audio. Mungkin browser kamu blokir autoplay."));
+    }
+
+    // === Mode Switch ===
+    ttsMode.addEventListener('change', () => {
+      const mode = ttsMode.value;
+      document.getElementById('browserSection').classList.toggle('hidden', mode !== 'browser');
+      document.getElementById('seSection').classList.toggle('hidden', mode !== 'streamelements');
+    });
+
+    // === Tombol ===
+    function speak() {
+      const mode = ttsMode.value;
+      const text = textEl.value.trim();
+      if (!text) return alert("Masukkan teks dulu!");
+
+      if (mode === 'browser') {
+        if (synth.speaking) return console.warn('Masih berbicara...');
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'id-ID';
+        const selected = voices[parseInt(voicesSelect.value)];
+        if (selected) utter.voice = selected;
+        utter.pitch = parseFloat(pitch.value);
+        utter.rate = parseFloat(rate.value);
+        synth.speak(utter);
+      } else {
+        playStreamElementsTTS(text, seVoices.value);
+      }
+    }
+
+    document.getElementById('speak').onclick = speak;
+    document.getElementById('pause').onclick = () => synth.pause();
+    document.getElementById('resume').onclick = () => synth.resume();
+    document.getElementById('cancel').onclick = () => synth.cancel();
+
+    setTimeout(populateVoices, 200);
+
+    // === Loading Screen ===
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('loadingScreen');
+      setTimeout(() => {
+        loader.style.animation = 'fadeOut 0.8s ease forwards';
+        setTimeout(() => loader.remove(), 600);
+      }, 1200);
+    });
+  </script>
 </body>
 </html>
