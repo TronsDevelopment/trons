@@ -47,7 +47,7 @@
   html,body{height:100%; margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
   body {
     display:flex; flex-direction:column; background:var(--bg);
-    color:var(--text); min-height:100vh;
+    color:var(--text); min-height:100vh; padding-bottom: 70px;
   }
 
   header {
@@ -176,6 +176,76 @@
     transform: translateY(0);
   }
 }
+
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 9999;
+  animation: loaderFadeOut 1.6s ease-in-out 2.2s forwards;
+}
+
+/* teks utama */
+.loading-logo {
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+  animation: fadeLogoIn 1.4s ease-out forwards;
+}
+
+/* DUTA putih polos tapi glowing dikit */
+.loading-logo .duta {
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
+}
+
+/* AI shimmer hijau-turquoise elegan */
+.loading-logo .ai {
+  background: linear-gradient(90deg, #0affc1, #10a37f, #00f0ff);
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerMove 3s ease-in-out infinite, glowPulse 3s ease-in-out infinite;
+  text-shadow: 0 0 40px rgba(0, 255, 200, 0.45);
+  filter: drop-shadow(0 0 20px rgba(0, 255, 200, 0.2));
+}
+
+/* shimmer halus */
+@keyframes shimmerMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* fade-in lembut */
+@keyframes fadeLogoIn {
+  0% { opacity: 0; transform: scale(0.9) translateY(10px); filter: blur(6px); }
+  70% { opacity: 1; transform: scale(1.02); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* glowing pulse */
+@keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 25px rgba(16,163,127,0.35); }
+  50% { text-shadow: 0 0 45px rgba(0,255,200,0.7); }
+}
+
+/* smooth fade out */
+@keyframes loaderFadeOut {
+  0% { opacity: 1; filter: blur(0); }
+  60% { opacity: 0.4; filter: blur(6px); }
+  100% { opacity: 0; visibility: hidden; filter: blur(10px); }
+}
 </style>
 </head>
 <body>
@@ -199,12 +269,18 @@
     </div>
   </header>
 
+  <div id="loading-screen">
+    <h1 class="loading-logo">
+      <span class="duta">DUTA</span><span class="ai">AI</span>
+    </h1>
+  </div>
+
   <main>
-    <div id="chat" aria-live="polite"></div>
+    <div id="chat" aria-live="polite" style="display:none;"></div>
   </main>
 
   <div id="controls">
-    <button id="attachBtn" class="icon-btn" title="Lampirkan file">📎</button>
+    <button id="attachBtn" class="icon-btn" title="Lampirkan file" aria-label="Lampirkan file">📎</button>
     <textarea id="input" placeholder="Ketik pertanyaanmu..." rows="1"></textarea>
     <button id="send" class="btn">Kirim</button>
   </div>
@@ -601,6 +677,22 @@ let autoScrollEnabled = true;
 chat.addEventListener("scroll", () => {
   const atBottom = chat.scrollHeight - chat.scrollTop <= chat.clientHeight + 40;
   autoScrollEnabled = atBottom;
+});
+
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loading-screen');
+  const chat = document.getElementById('chat');
+  setTimeout(() => {
+    loader.style.pointerEvents = 'none';
+    chat.style.opacity = '0';
+    chat.style.display = 'block';
+    chat.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 800,
+      easing: 'ease-in-out',
+      fill: 'forwards'
+    });
+    setTimeout(() => loader.remove(), 1400);
+  }, 1600);
 });
 </script>
 </body>
