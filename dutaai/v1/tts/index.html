@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DutaAI - TTS</title>
 
-  <!-- TailwindCSS -->
+  <script src="https://cdn.jsdelivr.net/npm/bytez.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -22,9 +23,7 @@
     };
   </script>
 
-  <!-- Custom Styles -->
   <style>
-    /* Select styling */
     select {
       appearance: none;
       -webkit-appearance: none;
@@ -54,7 +53,6 @@
       color: #e5e7eb;
     }
 
-    /* Loading animation */
     @keyframes fadeOut {
       0% { opacity: 1; transform: scale(1); }
       80% { opacity: 0; transform: scale(1.05); }
@@ -75,34 +73,34 @@
 
 <body class="bg-bg text-gray-100 min-h-screen flex items-center justify-center p-6">
 
-  <!-- Loading Screen -->
-  <div id="loadingScreen" class="fixed inset-0 bg-[#0b1020] flex items-center justify-center z-50">
+  <div id="loadingScreen" class="fixed inset-0 bg-[#0b1020] flex flex-col items-center justify-center z-50">
     <h1 class="text-4xl md:text-5xl font-bold text-white tracking-[0.25em] animate-fade">
       Duta<span class="text-violet-500">AI</span>
     </h1>
+    <p id="loadingVersion" class="text-violet-400/80 text-xs mt-3 opacity-0 transition-opacity duration-700">versi v1.3</p>
   </div>
 
-  <!-- Main Container -->
   <div class="max-w-2xl w-full">
-    <header class="mb-6 text-center">
-      <h1 class="text-2xl font-bold mb-2">DutaAI - TTS</h1>
-      <p class="text-muted text-sm">TTS Bahasa Indonesia ringan & gratis.</p>
-    </header>
+  <header class="mb-6 text-center">
+    <h1 class="text-2xl font-bold mb-1">DutaAI - TTS</h1>
+    <p class="text-violet-400 text-xs font-semibold">versi v1.2</p>
+    <p class="text-muted text-sm mt-1">TTS Bahasa Indonesia ringan & gratis.</p>
+  </header>
 
     <section class="bg-card rounded-2xl shadow-2xl p-6 border border-gray-800">
-      <!-- Text Input -->
       <label for="text" class="block font-semibold mb-2">Masukkan teks Bahasa Indonesia</label>
       <textarea id="text"
         class="w-full rounded-xl bg-transparent border border-gray-700 focus:border-accent focus:ring-accent p-3 text-sm h-36 resize-none"
-        placeholder="Ketik atau tempel teks di sini...">Halo! Selamat pagi ato siang ato malem eta weh pokokna, ganti/edit bagian ini dan masukkan teks kamu!</textarea>
+        placeholder="Ketik atau tempel teks di sini...">Halo! Selamat pagi atau malam, ganti bagian ini dan masukkan teks kamu!</textarea>
 
-      <!-- Settings -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
         <div>
           <label class="block font-medium mb-1">Mode TTS</label>
           <select id="ttsMode" class="w-full bg-transparent border border-gray-700 rounded-lg p-2 text-sm focus:border-accent focus:ring-accent">
-            <option value="browser">Browser (Web Speech API)</option>
-            <option value="streamelements">StreamElements API</option>
+            <option value="browser">Browser (Web Speech)</option>
+            <option value="streamelements">StreamElements</option>
+            <option value="bytez-cdn">Bytez (CDN)</option>
+            <option value="bytez-run">Bytez (Run API)</option>
           </select>
 
           <!-- Browser Section -->
@@ -122,6 +120,20 @@
             </select>
             <div id="seVoiceInfo" class="max-h-32 overflow-y-auto mt-3 p-3 text-xs border border-dashed border-gray-700 rounded-lg text-muted"></div>
           </div>
+
+          <!-- Bytez CDN Section -->
+          <div id="bytezCdnSection" class="hidden mt-4 text-xs text-muted border border-dashed border-gray-700 rounded-lg p-3">
+            <p><strong>Bytez CDN</strong> memakai jaringan CDN Bytez untuk hasil cepat tanpa setup tambahan.<br>
+            ⚡ <em>Pro:</em> cepat & ringan<br>
+            🧱 <em>Con:</em> kadang delay suara 1–2 detik.</p>
+          </div>
+
+          <!-- Bytez Run Section -->
+          <div id="bytezRunSection" class="hidden mt-4 text-xs text-muted border border-dashed border-gray-700 rounded-lg p-3">
+            <p><strong>Bytez Run API</strong> menjalankan model langsung via API Bytez — hasil lebih stabil & konsisten.<br>
+            ⚡ <em>Pro:</em> kontrol penuh hasil<br>
+            🧱 <em>Con:</em> sedikit lebih lambat dari CDN.</p>
+          </div>
         </div>
 
         <div>
@@ -132,7 +144,6 @@
         </div>
       </div>
 
-      <!-- Control Buttons -->
       <div class="flex flex-wrap gap-3 mt-6">
         <button id="speak" class="flex-1 bg-accent hover:bg-violet-600 transition font-semibold py-2 rounded-xl">▶️ Bicara</button>
         <button id="pause" class="flex-1 bg-gray-700 hover:bg-gray-600 transition font-semibold py-2 rounded-xl">⏸️ Jeda</button>
@@ -140,17 +151,14 @@
         <button id="cancel" class="flex-1 bg-red-700 hover:bg-red-600 transition font-semibold py-2 rounded-xl">✖️ Berhenti</button>
       </div>
 
-      <!-- Footer Info -->
       <p class="text-muted text-xs mt-5 text-center">
         Untuk sekarang, support:
-        <br><code>Chrome/Edge</code> untuk Browser TTS, atau <code>StreamElements API</code> untuk universal playback.
+        <br><code>Chrome/Edge</code> untuk Browser TTS, atau <code>StreamElements / Bytez API</code> untuk universal playback.
       </p>
     </section>
   </div>
 
-  <!-- Scripts -->
   <script>
-    // === Browser Web Speech API ===
     const synth = window.speechSynthesis;
     const textEl = document.getElementById('text');
     const voicesSelect = document.getElementById('voices');
@@ -164,6 +172,34 @@
     const seVoiceInfo = document.getElementById('seVoiceInfo');
     let voices = [];
 
+    const BYTEZ_KEY = "7d2e0b1635bea99b4ef9778cd1c0201e";
+
+    async function playBytezCDN(text) {
+      const sdk = new Bytez(BYTEZ_KEY);
+      const model = sdk.model("facebook/mms-tts-ind");
+      const { error, output } = await model.run(text, { json: false });
+      if (error) return alert(error);
+      const blob = new Blob([output]);
+      new Audio(URL.createObjectURL(blob)).play();
+    }
+
+    async function playBytezRun(text) {
+      const res = await fetch("https://api.bytez.com/run", {
+        method: "POST",
+        headers: {
+          "Authorization": `Key ${BYTEZ_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "facebook/mms-tts-ind",
+          input: text,
+          json: false
+        })
+      });
+      const blob = await res.blob();
+      new Audio(URL.createObjectURL(blob)).play();
+    }
+
     function populateVoices() {
       const allVoices = synth.getVoices();
       voices = allVoices.filter(v => /^id(-[A-Z]+)?$/i.test(v.lang));
@@ -171,7 +207,7 @@
 
       if (voices.length === 0) {
         voicesSelect.innerHTML = '<option value="-1">❌ Tidak ada voice Bahasa Indonesia</option>';
-        voiceInfo.innerHTML = 'Browser kamu belum menyediakan voice Bahasa Indonesia.<br>Coba gunakan Chrome/Edge terbaru.';
+        voiceInfo.innerHTML = 'Browser kamu belum punya voice Bahasa Indonesia.<br>Coba pakai Chrome/Edge terbaru.';
         return;
       }
 
@@ -195,54 +231,44 @@
       if (v) updateVoiceInfo(v);
     });
 
-    // === StreamElements Voice Info ===
     const seVoiceData = {
-      "id-ID-Wavenet-A": {
-        name: "Wavenet A",
-        gender: "Perempuan",
-        tone: "Suara ceria dan ramah, cocok buat konten santai dan interaktif."
-      },
-      "id-ID-Wavenet-B": {
-        name: "Wavenet B",
-        gender: "Laki-laki",
-        tone: "Suara tegas dan formal, cocok buat narasi atau pembacaan berita."
-      },
-      "id-ID-Wavenet-C": {
-        name: "Wavenet C",
-        gender: "Netral",
-        tone: "Suara natural dengan tone seimbang, cocok buat konten umum dan video AI."
-      }
+      "id-ID-Wavenet-A": { name: "Wavenet A", gender: "Perempuan", tone: "Ceria dan ramah, cocok buat konten santai." },
+      "id-ID-Wavenet-B": { name: "Wavenet B", gender: "Laki-laki", tone: "Tegas dan formal, cocok buat narasi." },
+      "id-ID-Wavenet-C": { name: "Wavenet C", gender: "Netral", tone: "Natural dan seimbang, cocok buat video AI." }
     };
 
     function updateSEVoiceInfo(id) {
       const v = seVoiceData[id];
-      if (v) {
-        seVoiceInfo.innerHTML = `<strong>${v.name}</strong><br>Gender: ${v.gender}<br>Karakter: ${v.tone}`;
-      }
+      if (v) seVoiceInfo.innerHTML = `<strong>${v.name}</strong><br>Gender: ${v.gender}<br>Karakter: ${v.tone}`;
     }
 
     seVoices.addEventListener('change', () => updateSEVoiceInfo(seVoices.value));
     updateSEVoiceInfo(seVoices.value);
 
-    // === Pitch & Rate ===
     pitch.addEventListener('input', () => pitchVal.textContent = pitch.value);
     rate.addEventListener('input', () => rateVal.textContent = rate.value);
 
-    // === StreamElements API ===
     async function playStreamElementsTTS(text, voice) {
       const url = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(text)}`;
       const audio = new Audio(url);
-      audio.play().catch(() => alert("Gagal memutar audio. Mungkin browser kamu blokir autoplay."));
+      try {
+        await audio.play();
+      } catch {
+        alert("Gagal memutar audio. Browser kamu mungkin blokir autoplay.");
+      }
     }
 
-    // === Mode Switch ===
-    ttsMode.addEventListener('change', () => {
-      const mode = ttsMode.value;
-      document.getElementById('browserSection').classList.toggle('hidden', mode !== 'browser');
-      document.getElementById('seSection').classList.toggle('hidden', mode !== 'streamelements');
-    });
+    function toggleSections(mode) {
+      const ids = ["browserSection", "seSection", "bytezCdnSection", "bytezRunSection"];
+      ids.forEach(id => document.getElementById(id).classList.add("hidden"));
+      if (mode === "browser") document.getElementById("browserSection").classList.remove("hidden");
+      if (mode === "streamelements") document.getElementById("seSection").classList.remove("hidden");
+      if (mode === "bytez-cdn") document.getElementById("bytezCdnSection").classList.remove("hidden");
+      if (mode === "bytez-run") document.getElementById("bytezRunSection").classList.remove("hidden");
+    }
 
-    // === Tombol ===
+    ttsMode.addEventListener('change', () => toggleSections(ttsMode.value));
+
     function speak() {
       const mode = ttsMode.value;
       const text = textEl.value.trim();
@@ -257,8 +283,12 @@
         utter.pitch = parseFloat(pitch.value);
         utter.rate = parseFloat(rate.value);
         synth.speak(utter);
-      } else {
+      } else if (mode === 'streamelements') {
         playStreamElementsTTS(text, seVoices.value);
+      } else if (mode === 'bytez-cdn') {
+        playBytezCDN(text);
+      } else if (mode === 'bytez-run') {
+        playBytezRun(text);
       }
     }
 
@@ -269,13 +299,17 @@
 
     setTimeout(populateVoices, 200);
 
-    // === Loading Screen ===
+    const APP_VERSION = "v1.2";
+    document.getElementById("loadingVersion").textContent = `versi ${APP_VERSION}`;
+
     window.addEventListener('load', () => {
       const loader = document.getElementById('loadingScreen');
+      const versionEl = document.getElementById('loadingVersion');
+      setTimeout(() => versionEl.style.opacity = '1', 700); // muncul setelah logo
       setTimeout(() => {
         loader.style.animation = 'fadeOut 0.8s ease forwards';
         setTimeout(() => loader.remove(), 600);
-      }, 1200);
+      }, 2000);
     });
   </script>
 </body>
