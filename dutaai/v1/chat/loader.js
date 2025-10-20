@@ -1,13 +1,16 @@
 /*
- Terminal Boot loader (fast techy) — total duration fixed to 3400ms (3.4s)
- - Many lines will appear quickly (type-like feel).
- - After finished, shows Ready. and pauses 1 second.
- - Then flashes [ DUTA AI ], fades out, and reveals chat.
+ Terminal Boot Loader (tricky load version)
+ - Total duration: 3.4s (2.4s typing + 1s pause)
+ - Line 1 slower (600ms)
+ - 2 random lines slower (200–350ms)
 */
 
-(function terminalBootFixed() {
-  const TOTAL_MS = 2400; // typing still 2.4s, extra 1s added after Ready
-  const finalPause = 220; // fade delay (ms)
+(function terminalBootTricky() {
+  const TOTAL_MS = 2400;
+  const fadeDelay = 220;
+  const afterReadyPause = 1000;
+  const failsafeExtra = 1800;
+
   const bootScreen = document.getElementById('loading-screen');
   const bootLinesEl = document.getElementById('bootLines');
   const dutaLabel = document.getElementById('dutaLabel');
@@ -35,29 +38,49 @@
     "Ready."
   ];
 
-  const usableMs = TOTAL_MS - finalPause;
+  // --- generate slot durations ---
+  const usableMs = TOTAL_MS - fadeDelay;
   const lengths = LINES.map(l => Math.min(1 + l.length, 120));
-  const totalLen = lengths.reduce((s,n)=>s+n,0);
-  const slots = lengths.map(len => Math.max(20, Math.floor((len/totalLen) * usableMs)));
+  const totalLen = lengths.reduce((s, n) => s + n, 0);
+  const baseSlots = lengths.map(len => Math.max(20, Math.floor((len / totalLen) * usableMs)));
 
-  let sumSlots = slots.reduce((s,n)=>s+n,0);
-  let diff = usableMs - sumSlots;
-  let idx = 0;
-  while (diff !== 0) {
-    if (diff > 0) { slots[idx % slots.length]++; diff--; }
-    else { if (slots[idx % slots.length] > 20) { slots[idx % slots.length]--; diff++; } }
-    idx++;
-    if (idx > 10000) break;
+  // pick 2 random "slow" lines (not including 0 and last)
+  const slowIndices = [];
+  while (slowIndices.length < 2) {
+    const r = Math.floor(Math.random() * (LINES.length - 2)) + 1; // skip first & last
+    if (!slowIndices.includes(r)) slowIndices.push(r);
   }
 
-  const caret = document.createElement('span');
-  caret.className = 'caret';
+  // apply slow factors
+  const slots = baseSlots.slice();
+  slots[0] = 600; // first always slow
+  slowIndices.forEach(i => {
+    slots[i] = 200 + Math.floor(Math.random() * 150); // 200–350ms
+  });
 
+  // recalc remaining time to keep total constant
+  const used = slots.reduce((s, n) => s + n, 0);
+  const diff = usableMs - used;
+  if (Math.abs(diff) > 0) {
+    const factor = (usableMs - slots[0] - slots[slowIndices[0]] - slots[slowIndices[1]]) /
+                   (usableMs - (slots[0] + slots[slowIndices[0]] + slots[slowIndices[1]] + diff));
+    for (let i = 0; i < slots.length; i++) {
+      if (i !== 0 && !slowIndices.includes(i) && i !== LINES.length - 1) {
+        slots[i] = Math.max(20, Math.floor(slots[i] * factor));
+      }
+    }
+  }
+
+  // --- typing logic ---
   function typeLine(text, slotMs) {
     return new Promise(resolve => {
       const lineEl = document.createElement('div');
-      lineEl.setAttribute('role','listitem');
+      lineEl.setAttribute('role', 'listitem');
       bootLinesEl.appendChild(lineEl);
+
+      const caret = document.createElement('span');
+      caret.className = 'caret';
+      lineEl.appendChild(caret);
 
       const minCharDelay = 8;
       const maxCharDelay = 22;
@@ -67,11 +90,13 @@
 
       let i = 0;
       function step() {
-        const batch = (slotMs < 140) ? 3 : 4;
-        for (let b=0;b<batch && i<text.length;b++) {
+        const batch = (slotMs < 140) ? 5 : 3;
+        for (let b = 0; b < batch && i < text.length; b++) {
           lineEl.textContent += text[i++];
         }
-        bootLinesEl.parentElement.scrollTop = bootLinesEl.parentElement.scrollHeight;
+        const container = bootLinesEl.parentElement;
+        container.scrollTop = container.scrollHeight;
+
         if (i < text.length) {
           const jitter = Math.random() * (base * 0.6);
           setTimeout(step, base + jitter);
@@ -83,7 +108,6 @@
           resolve();
         }
       }
-      lineEl.appendChild(caret);
       step();
     });
   }
@@ -92,7 +116,7 @@
     bootLinesEl.innerHTML = '';
     bootLinesEl.parentElement.scrollTop = 0;
 
-    for (let i=0;i<LINES.length;i++) {
+    for (let i = 0; i < LINES.length; i++) {
       const txt = LINES[i];
       const slot = slots[i] || Math.floor(usableMs / LINES.length);
       await typeLine(txt, slot);
@@ -103,20 +127,16 @@
     bootReady.style.transform = 'translateY(0) scale(1)';
     dutaLabel.style.color = 'rgba(0,255,153,1)';
     dutaLabel.style.transform = 'scale(1.03)';
-    setTimeout(()=> {
-      dutaLabel.style.transform = '';
-    }, 160);
+    setTimeout(() => { dutaLabel.style.transform = ''; }, 160);
 
-    // ✅ 1 SECOND PAUSE AFTER "READY."
-    setTimeout(() => exitLoader(), finalPause + 1000);
+    setTimeout(exitLoader, fadeDelay + afterReadyPause);
   }
 
   function exitLoader() {
     if (!bootScreen) return finishNow();
-
     bootScreen.classList.add('loader-exit');
     setTimeout(() => {
-      try { bootScreen.remove(); } catch(e){}
+      try { bootScreen.remove(); } catch(e) {}
       finishNow();
     }, 460);
   }
@@ -125,16 +145,17 @@
     if (chatEl) {
       chatEl.style.display = 'block';
       chatEl.style.opacity = '0';
-      chatEl.animate([{opacity:0},{opacity:1}], {duration:280, easing:'ease-in-out', fill:'forwards'});
+      chatEl.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: 280, easing: 'ease-in-out', fill: 'forwards'
+      });
     }
   }
 
-  requestAnimationFrame(() => {
-    setTimeout(run, 40);
-  });
+  requestAnimationFrame(() => setTimeout(run, 40));
 
+  // fail-safe
   setTimeout(() => {
     if (document.getElementById('loading-screen')) exitLoader();
-  }, TOTAL_MS + 1600);
+  }, TOTAL_MS + failsafeExtra);
 
 })();
