@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DutaAI v2 - Chat (ALPHA)</title>
+
+<!-- MathJax -->
+<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?version=4.8.0&features=es6"></script>
+
+<script>
+window.MathJax = {
+  loader: {
+    load: [
+      'input/tex',
+      'output/chtml',
+      'ui/menu',
+      '[tex]/ams',
+      '[tex]/color',
+      '[tex]/noerrors',
+      '[tex]/noundefined'
+    ]
+  },
+
+  tex: {
+    inlineMath: [['\\(', '\\)'], ['$', '$']],
+    displayMath: [['\\[', '\\]'], ['$$', '$$']],
+    packages: {'[+]': ['ams', 'color', 'noerrors', 'noundefined']},
+    processEscapes: true,
+    processRefs: true,
+    processEnvironments: true,
+    tags: 'ams',
+    tagSide: 'right',
+    tagIndent: '0.8em',
+    formatError: (jax, err) => {
+      console.warn('[MathJax Error]', err.message);
+      return jax.formatError(err);
+    }
+  },
+
+  chtml: {
+    scale: 1.05,
+    displayAlign: 'center',
+    displayIndent: '0',
+    matchFontHeight: true,
+    mtextInheritFont: true,
+    merrorInheritFont: true,
+    unknownFamily: 'serif',
+    exFactor: 0.5,
+    lineBreaks: { automatic: true, width: '95% container' }
+  },
+
+  options: {
+    skipHtmlTags: [
+      'script',
+      'noscript',
+      'style',
+      'textarea',
+      'pre',
+      'code'
+    ],
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process',
+    renderActions: {
+      addMenu: [] // disable menu kanan atas biar clean
+    }
+  },
+
+  startup: {
+    ready: () => {
+      console.log('%c[MathJax] initialized (v3) ✨', 'color:#22d3ee');
+      MathJax.startup.defaultReady();
+    },
+    pageReady: () => {
+      console.log('%c[MathJax] ready, rendering all equations...', 'color:#22d3ee');
+      return MathJax.startup.defaultPageReady();
+    }
+  }
+};
+</script>
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+<!-- Markdown parser -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"/>
+
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="DutaAI.png" alt="DutaAI Logo" class="logo">
+      <div>
+        <div class="title">DutaAI <span class="version">v2-beta-1</span></div>
+        <div class="meta">Superb AI Assistant</div>
+      </div>
+    </div>
+  </header>
+
+<div id="loading-screen" aria-live="polite" role="status">
+  <div class="terminal-boot" role="presentation" aria-hidden="false">
+    <div class="boot-screen" aria-hidden="false">
+      <div class="boot-window">
+        <div id="bootLines" class="boot-lines" aria-hidden="false"></div>
+      </div>
+    </div>
+
+    <div class="boot-right" aria-hidden="true">
+      <div style="opacity:0.85; font-size:12px; color:rgba(255,255,255,0.7)">SYSTEM</div>
+      <div class="duta-flash" id="dutaLabel">[ DUTA AI ]</div>
+      <div class="duta-version" id="dutaLabelVersion">2.0-beta1</div>
+      <div id="bootReady" class="boot-final">Ready.</div>
+    </div>
+  </div>
+</div>
+
+  <main>
+    <div id="chat" aria-live="polite" style="display:none;"></div>
+  </main>
+
+  <div id="controls">
+    <button id="attachBtn" class="icon-btn" title="Lampirkan file" aria-label="Lampirkan file">📎</button>
+    <textarea id="input" placeholder="Ketik pertanyaanmu..." rows="1"></textarea>
+    <button id="send" class="btn">Kirim</button>
+  </div>
+
+<script src="main.js"></script>
+<script src="loader.js"></script>
+</body>
+</html>
