@@ -101,6 +101,74 @@ function append(role, content, meta = {}) {
   return { wrapper, bubble };
 }
 
+
+let pendingImage = null;      // File object
+let pendingImageURL = null;   // Object URL for preview
+
+// create a hidden file input (accept images)
+const imageInput = document.createElement('input');
+imageInput.type = 'file';
+imageInput.accept = 'image/*';
+imageInput.style.display = 'none';
+imageInput.id = 'imageInput';
+document.body.appendChild(imageInput);
+
+// Update attachBtn to open file picker
+attachBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  imageInput.click();
+});
+
+imageInput.addEventListener('change', async (ev) => {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  handleSelectedImage(file);
+  // reset so same file can be selected again if needed
+  imageInput.value = '';
+});
+
+chat.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  chat.classList.add('drag-over');
+});
+chat.addEventListener('dragleave', (e) => {
+  chat.classList.remove('drag-over');
+});
+chat.addEventListener('drop', (e) => {
+  e.preventDefault();
+  chat.classList.remove('drag-over');
+  const dt = e.dataTransfer;
+  if (dt && dt.files && dt.files.length) {
+    const file = dt.files[0];
+    if (file.type && file.type.startsWith('image/')) {
+      handleSelectedImage(file);
+    } else {
+      showToast('Hanya file gambar yang diterima.');
+    }
+  }
+});
+
+function handleSelectedImage(file) {
+  // limit size (optional): 7MB to match Gemini expectation
+  const MAX_MB = 7;
+  if (file.size > MAX_MB * 1024 * 1024) {
+    showToast(`Gambar terlalu besar. Maksimal ${MAX_MB} MB.`);
+    return;
+  }
+
+  // revoke previous URL if exists
+  if (pendingImageURL) URL.revokeObjectURL(pendingImageURL);
+
+  pendingImage = file;
+  pendingImageURL = URL.createObjectURL(file);
+
+  // append user bubble preview
+  append('user', { type: 'image', src: pendingImageURL, name: file.name });
+
+  // auto-focus input so user can type query about image
+  input.focus();
+}
+
 function appendAIBubble() {
   const wrapper = document.createElement("div");
   wrapper.className = "msg ai";
@@ -235,23 +303,64 @@ async function typeWriter(bubble, html) {
 
 /* Main sending */
 async function sendPrompt(userText) {
+  // original guard conditions (kept)
   if (cooldownActive || aiTyping) return;
-  if (!userText || !userText.trim()) return;
+  if (!userText || !userText.trim()) {
+    // If there's an attached image but no text -> Mode B behavior:
+    if (pendingImage) {
+      // Show assistant prompt locally asking for clarification (no API call)
+      const { bubble } = appendAIBubble();
+      // Local AI reply (Mode B): ask user what they want about the image
+      bubble.innerHTML = `Gambar sudah saya terima. Apa yang ingin kamu ketahui tentang gambar ini?`;
+      smoothScrollToBottom();
+      setCooldown(COOLDOWN_TIME || 2);
+      // do not clear pendingImage here — keep it until user sends with text
+      return;
+    }
+    // If no image and empty text, nothing to do
+    return;
+  }
 
-  append('user', escapeHtml(userText));
+  // Normal path: include image if user attached one
+  append('user', escapeHtml(userText)); // already done earlier in original code; keep consistent
   input.value = '';
-
   input.disabled = true;
   sendBtn.disabled = true;
+
+  // prepare parts array
+  const parts = [
+    { text: SYSTEM_PROMPT }
+  ];
+
+  if (pendingImage) {
+    // convert image to base64 (without data:* prefix)
+    try {
+      const base64 = await fileToBase64(pendingImage);
+      const pureBase64 = base64.replace(/^data:[^;]+;base64,/, '');
+      parts.push({
+        inline_data: {
+          mime_type: pendingImage.type || 'image/jpeg',
+          data: pureBase64
+        }
+      });
+    } catch (err) {
+      // failed conversion — show error bubble and abort send
+      const { bubble } = appendAIBubble();
+      bubble.innerHTML = `❌ Gagal memproses gambar: ${escapeHtml(err?.message || String(err))}`;
+      setCooldown(COOLDOWN_TIME || 2);
+      input.disabled = false;
+      sendBtn.disabled = false;
+      return;
+    }
+  }
+
+  parts.push({ text: userText });
 
   const body = {
     contents: [
       {
         role: "user",
-        parts: [
-          { text: SYSTEM_PROMPT },
-          { text: userText }
-        ]
+        parts: parts
       }
     ]
   };
@@ -271,7 +380,7 @@ async function sendPrompt(userText) {
       const { bubble } = appendAIBubble();
       bubble.innerHTML = `❌ Error: ${res.status} ${res.statusText}` + (text ? `<div class="muted" style="margin-top:8px;font-size:13px">${escapeHtml(text)}</div>` : '');
       aiTyping = false;
-      setCooldown(3);
+      setCooldown(COOLDOWN_TIME || 2);
       return;
     }
 
@@ -287,11 +396,37 @@ async function sendPrompt(userText) {
     const { bubble } = appendAIBubble();
     bubble.innerHTML = `❌ Error: ${escapeHtml(err?.message || String(err))}`;
     aiTyping = false;
-    setCooldown(3);
+    setCooldown(COOLDOWN_TIME || 2);
   } finally {
+    // cleanup: revoke URL and clear pendingImage
+    if (pendingImageURL) {
+      URL.revokeObjectURL(pendingImageURL);
+      pendingImageURL = null;
+    }
+    pendingImage = null;
     smoothScrollToBottom();
   }
 }
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => {
+      reader.abort();
+      reject(new Error('File reading failed'));
+    };
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+}
+
+sendBtn.removeEventListener('click', () => {}); // best-effort no-op remove (safe)
+sendBtn.addEventListener('click', () => {
+  const text = input.value.trim();
+  if (!text && !pendingImage) return; // nothing to send
+  sendPrompt(text);
+});
+
 
 /* Utilities */
 function escapeHtml(str){
@@ -313,10 +448,6 @@ input.addEventListener('keydown', (e) => {
     e.preventDefault();
     sendBtn.click();
   }
-});
-
-attachBtn.addEventListener('click', () => {
-  showToast('Es A Be A Er, Sabar. Ane lagi bikin fiturnya!');
 });
 
 function showToast(msg, ttl = 1800) {
@@ -363,3 +494,10 @@ window.addEventListener('error', e => {
     console.warn('[MathJax] CDN failed to load, equations will not render.');
   }
 }, true);
+
+const style = document.createElement('style');
+style.innerHTML = `
+  #chat.drag-over { outline: 2px dashed rgba(100,150,255,0.9); background: rgba(240,248,255,0.6); transition: background .15s; }
+  .preview-img { max-height: 240px; display:block; }
+`;
+document.head.appendChild(style);
