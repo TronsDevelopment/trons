@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" dir="ltr">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -8,20 +8,30 @@
 <!-- SEO & Meta -->
 <meta name="description" content="DutaAI v2 – Superb AI Assistant with elegant tech design and intelligent chat interface.">
 <meta name="theme-color" content="#10a37f">
+<meta name="apple-mobile-web-app-title" content="DutaAI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="DutaAI.png">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta property="og:title" content="DutaAI v2 - Chat (ALPHA)">
 <meta property="og:description" content="Superb AI Assistant with futuristic interface and smart boot animation.">
 <meta property="og:image" content="DutaAI.png">
 <meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tronsar.is-cool.dev/dutaai/v2/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DutaAI v2 - Chat (ALPHA)">
+<meta name="twitter:description" content="Superb AI Assistant with futuristic interface and smart boot animation.">
+<meta name="twitter:image" content="DutaAI.png">
 
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 <meta name="apple-mobile-web-app-capable" content="yes">
 
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="DutaAI.png">
 
 <!-- MathJax -->
-<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?version=4.8.0&features=es6"></script>
-
 <script>
 window.MathJax = {
   loader: {
@@ -106,6 +116,11 @@ window.MathJax = {
 
 </head>
 <body>
+
+<noscript>
+  <div class="no-js-warning">⚠️ JavaScript wajib aktif untuk menggunakan DutaAI.</div>
+</noscript>
+
   <header>
     <div class="brand">
       <img src="DutaAI.png" alt="DutaAI Logo" class="logo">
@@ -145,5 +160,14 @@ window.MathJax = {
 
 <script src="main.js"></script>
 <script src="loader.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(() => {
+    console.log('%c[ServiceWorker] Registered ✅', 'color:#10a37f');
+  }).catch(err => {
+    console.error('[ServiceWorker] Failed:', err);
+  });
+}
+</script>
 </body>
 </html>
