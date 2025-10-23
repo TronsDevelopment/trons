@@ -2,7 +2,7 @@
 <html lang="id" dir="ltr">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>DutaAI v2 - Chat (ALPHA)</title>
 
 <!-- SEO & Meta -->
@@ -114,6 +114,8 @@ window.MathJax = {
 
 <link rel="stylesheet" href="style.css"/>
 
+<script src="main.js" defer></script>
+<script src="loader.js" defer></script>
 </head>
 <body>
 
@@ -127,7 +129,7 @@ window.MathJax = {
     <div class="brand">
       <img src="DutaAI.png" alt="DutaAI Logo" class="logo">
       <div>
-        <div class="title">DutaAI <span class="version">v2-beta-1</span></div>
+        <div class="title">DutaAI <span class="version">v2-beta-2</span></div>
         <div class="meta">Superb AI Assistant</div>
       </div>
     </div>
@@ -144,7 +146,7 @@ window.MathJax = {
     <div class="boot-right" aria-hidden="true">
       <div style="opacity:0.85; font-size:12px; color:rgba(255,255,255,0.7)">SYSTEM</div>
       <div class="duta-flash" id="dutaLabel">[ DUTA AI ]</div>
-      <div class="duta-version" id="dutaLabelVersion">2.0-beta1</div>
+      <div class="duta-version" id="dutaLabelVersion">2.0-beta2</div>
       <div id="bootReady" class="boot-final">Ready.</div>
     </div>
   </div>
@@ -160,8 +162,6 @@ window.MathJax = {
     <button id="send" class="btn">Kirim</button>
   </div>
 
-<script src="main.js"></script>
-<script src="loader.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(() => {
