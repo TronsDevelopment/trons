@@ -1,16 +1,15 @@
 // sw.js — DutaAI v2 Advanced Service Worker 🚀
-// Version: 2.0.0
+// Version: 2.1.0
 // Author: DutaAI Team
-// Purpose: Offline-first PWA caching, network optimization, update management
+// Purpose: Offline-first PWA caching, network optimization, smart update control
 
 // ============================
 // 🔧 CONFIG
 // ============================
-const CACHE_VERSION = 'v2.0.0';
-const CACHE_NAME = `dutaai-v2-cache-${CACHE_VERSION}`;
+const VERSION = 'v2.1.0';
+const CACHE_NAME = `dutaai-cache-${VERSION}`;
 const ROOT = '/dutaai/v2/chat/';
 
-// Core static assets — always cached during install
 const CORE_ASSETS = [
   `${ROOT}`,
   `${ROOT}index.html`,
@@ -21,7 +20,6 @@ const CORE_ASSETS = [
   `${ROOT}manifest.json`
 ];
 
-// Optional resources (lazy cached)
 const OPTIONAL_ASSETS = [
   `${ROOT}fonts/inter.woff2`,
   `${ROOT}icons/icon-192.png`,
@@ -29,144 +27,152 @@ const OPTIONAL_ASSETS = [
 ];
 
 // ============================
-// ⚡ UTILITIES
+// 🧩 UTILITIES
 // ============================
-function log(...args) {
-  console.log('[SW]', ...args);
-}
-
-function warn(...args) {
-  console.warn('[SW]', ...args);
-}
-
-function now() {
-  return new Date().toLocaleTimeString();
-}
+const log = (...a) => console.log('[DutaAI SW]', ...a);
+const warn = (...a) => console.warn('[DutaAI SW]', ...a);
+const now = () => new Date().toLocaleTimeString();
 
 // ============================
-// 📦 INSTALL — Cache core files
+// 📦 INSTALL
 // ============================
 self.addEventListener('install', event => {
-  log('Installing DutaAI SW at', now());
+  log(`Installing SW ${VERSION} at ${now()}...`);
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      log('Caching core assets...');
-      for (const url of CORE_ASSETS) {
-        try {
-          await cache.add(url);
-          log('Cached:', url);
-        } catch (err) {
-          warn('Failed to cache:', url, err);
-        }
-      }
-      log('Core caching complete ✅');
+      await Promise.allSettled(
+        CORE_ASSETS.map(url =>
+          fetch(url)
+            .then(res => cache.put(url, res))
+            .catch(err => warn('Cache fail:', url, err))
+        )
+      );
+      log('Core assets cached ✅');
     })()
   );
   self.skipWaiting();
 });
 
 // ============================
-// 🔁 ACTIVATE — Cleanup old caches
+// 🔁 ACTIVATE
 // ============================
 self.addEventListener('activate', event => {
   log('Activating new Service Worker...');
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      await Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            log('Deleting old cache:', key);
-            return caches.delete(key);
-          }
-        })
-      );
-      log('Old caches cleared ✅');
+      for (const key of keys) {
+        if (key !== CACHE_NAME) {
+          log('🧹 Deleting old cache:', key);
+          await caches.delete(key);
+        }
+      }
       await self.clients.claim();
+      log('Service Worker active ✅');
+      broadcastMessage({ type: 'SW_VERSION', version: VERSION });
     })()
   );
 });
 
 // ============================
-// 🌐 FETCH — Cache-first with fallback
+// 🌐 FETCH — Smart Strategy
 // ============================
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  const url = new URL(req.url);
-
-  // Only handle our domain requests
-  if (!url.pathname.startsWith(ROOT)) return;
-
   event.respondWith(
-    caches.match(req).then(cachedResponse => {
-      if (cachedResponse) {
-        log('Serving from cache:', url.pathname);
+    (async () => {
+      const cached = await caches.match(req);
+      if (cached) {
+        // serve instantly & update silently (stale-while-revalidate)
         updateCacheAsync(req);
-        return cachedResponse;
+        return cached;
       }
-      return fetchAndCache(req);
-    })
+
+      // Try network first with timeout
+      try {
+        const network = await fetchWithTimeout(req, 5000);
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(req, network.clone());
+        return network;
+      } catch {
+        return handleOfflineFallback(req);
+      }
+    })()
   );
 });
 
 // ============================
-// 📡 NETWORK HELPERS
+// ⚡ NETWORK HELPERS
 // ============================
-async function fetchAndCache(req) {
-  try {
-    const networkResponse = await fetch(req);
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(req, networkResponse.clone());
-    log('Fetched & cached:', req.url);
-    return networkResponse;
-  } catch (err) {
-    warn('Network failed for', req.url, err);
-    if (req.destination === 'document') {
-      return caches.match(`${ROOT}index.html`);
-    }
-  }
+async function fetchWithTimeout(req, timeout = 5000) {
+  return Promise.race([
+    fetch(req),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Network timeout')), timeout)
+    )
+  ]);
 }
 
 async function updateCacheAsync(req) {
   try {
-    const response = await fetch(req);
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(req, response.clone());
-    log('Updated cache:', req.url);
+    const res = await fetch(req);
+    if (res && res.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(req, res.clone());
+      log('Cache refreshed:', req.url);
+    }
   } catch (err) {
-    warn('Update cache failed for', req.url, err);
+    warn('Update cache failed:', req.url, err);
   }
+}
+
+async function handleOfflineFallback(req) {
+  const cache = await caches.open(CACHE_NAME);
+  if (req.destination === 'document') {
+    return (
+      (await cache.match(`${ROOT}index.html`)) ||
+      new Response('<h1>Offline 😔</h1>', {
+        headers: { 'Content-Type': 'text/html' }
+      })
+    );
+  }
+
+  // fallback for images/json/fonts
+  if (req.destination === 'image') {
+    return new Response('', { status: 404 });
+  }
+
+  if (req.destination === 'font' || req.destination === 'script') {
+    return cache.match(req);
+  }
+
+  return new Response('Offline', { status: 503 });
 }
 
 // ============================
 // 💬 MESSAGE HANDLING
 // ============================
 self.addEventListener('message', event => {
-  const { data } = event;
-  if (data === 'SKIP_WAITING') {
-    log('Received skipWaiting signal ⚡');
+  const msg = event.data;
+  if (msg === 'SKIP_WAITING') {
+    log('Force activating new SW ⚡');
     self.skipWaiting();
-  }
-
-  if (data === 'CLEAR_CACHE') {
+  } else if (msg === 'CLEAR_CACHE') {
     clearAllCaches();
   }
 });
 
-// ============================
-// 🧹 CACHE MANAGEMENT
-// ============================
 async function clearAllCaches() {
   const keys = await caches.keys();
-  await Promise.all(keys.map(key => caches.delete(key)));
-  log('All caches cleared manually.');
+  await Promise.all(keys.map(k => caches.delete(k)));
+  log('All caches cleared manually 🧹');
 }
 
 // ============================
-// 🧠 BACKGROUND SYNC (optional)
+// 🧠 BACKGROUND SYNC
 // ============================
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-updates') {
@@ -181,26 +187,24 @@ async function updateAllAssets() {
     try {
       const res = await fetch(url);
       await cache.put(url, res.clone());
-      log('Updated asset via sync:', url);
+      log('Updated asset:', url);
     } catch (err) {
-      warn('Failed sync update for:', url);
+      warn('Sync update fail:', url);
     }
   }
   log('Background sync complete ✅');
 }
 
 // ============================
-// 📢 CLIENT COMMUNICATION
+// 📢 CLIENT MESSAGES
 // ============================
 async function broadcastMessage(msg) {
   const clients = await self.clients.matchAll({ includeUncontrolled: true });
-  for (const client of clients) {
-    client.postMessage(msg);
-  }
+  for (const c of clients) c.postMessage(msg);
 }
 
 // ============================
-// 🔔 NOTIFICATION SUPPORT
+// 🔔 PUSH NOTIFICATIONS
 // ============================
 self.addEventListener('push', event => {
   const data = event.data ? event.data.json() : {};
@@ -221,60 +225,41 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then(clientsArr => {
-      const client = clientsArr.find(c => c.url.includes(ROOT));
-      if (client) return client.focus();
+    (async () => {
+      const clientsArr = await self.clients.matchAll({ type: 'window' });
+      const existing = clientsArr.find(c => c.url.includes(ROOT));
+      if (existing) return existing.focus();
       return self.clients.openWindow(ROOT);
-    })
+    })()
   );
 });
 
 // ============================
-// 🧩 LAZY CACHING FOR OPTIONAL ASSETS
+// 🧩 PERIODIC SYNC (Lazy Cache)
 // ============================
-async function lazyCacheAssets() {
-  const cache = await caches.open(CACHE_NAME);
-  for (const url of OPTIONAL_ASSETS) {
-    try {
-      const res = await fetch(url);
-      await cache.put(url, res.clone());
-      log('Lazy cached:', url);
-    } catch (err) {
-      warn('Failed lazy cache:', url);
-    }
-  }
-}
-
 self.addEventListener('periodicsync', event => {
   if (event.tag === 'lazy-cache') {
-    log('Periodic sync: caching optional assets...');
     event.waitUntil(lazyCacheAssets());
   }
 });
 
-// ============================
-// 🧭 OFFLINE FALLBACK STRATEGY
-// ============================
-self.addEventListener('fetch', event => {
-  const req = event.request;
-  if (req.destination === 'document') {
-    event.respondWith(
-      fetch(req)
-        .then(res => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-          return res;
-        })
-        .catch(async () => {
-          const fallback = await caches.match(`${ROOT}index.html`);
-          return fallback || new Response('<h1>Offline 😔</h1>', {
-            headers: { 'Content-Type': 'text/html' }
-          });
-        })
-    );
-  }
-});
+async function lazyCacheAssets() {
+  const cache = await caches.open(CACHE_NAME);
+  await Promise.allSettled(
+    OPTIONAL_ASSETS.map(async url => {
+      try {
+        const res = await fetch(url);
+        await cache.put(url, res.clone());
+        log('Lazy cached:', url);
+      } catch (err) {
+        warn('Lazy cache fail:', url);
+      }
+    })
+  );
+  log('Optional assets cached ✅');
+}
 
 // ============================
-// ✅ END — Ready to serve!
-log('DutaAI Service Worker fully loaded ✅');
+// ✅ READY
+// ============================
+log(`DutaAI SW ${VERSION} ready to serve 🚀`);
