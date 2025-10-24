@@ -19,11 +19,21 @@
 <meta property="og:image" content="DutaAI.png">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://tronsar.is-cool.dev/dutaai/v2/">
+<meta property="og:url" content="https://tronsar.is-cool.dev/dutaai/v2/chat/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="DutaAI v2 - Chat (ALPHA)">
 <meta name="twitter:description" content="Superb AI Assistant with futuristic interface and smart boot animation.">
 <meta name="twitter:image" content="DutaAI.png">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-startup-image" href="DutaAI.png">
+
+<meta name="author" content="Tronsar Studio">
+<meta name="keywords" content="AI Chat, DutaAI, Assistant, Artificial Intelligence, Chatbot">
+
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: https:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com;">
+
+<meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
 
 <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -116,14 +126,9 @@ window.MathJax = {
 
 <script src="main.js" defer></script>
 <script src="loader.js" defer></script>
+
 </head>
 <body>
-
-<noscript>
-  <div class="no-js-warning" role="alert" aria-live="polite">
-    ⚠️ JavaScript wajib aktif untuk menggunakan DutaAI. Aktifkan JS lalu refresh ya.
-  </div>
-</noscript>
 
   <header>
     <div class="brand">
@@ -140,6 +145,24 @@ window.MathJax = {
     <div class="boot-screen" aria-hidden="false">
       <div class="boot-window">
         <div id="bootLines" class="boot-lines" aria-hidden="false"></div>
+<noscript>
+  <div style="
+    width:100%;
+    padding: 20px;
+    font-family:'JetBrains Mono', monospace;
+    color:#00ff99;
+    background:rgba(0,0,0,0.4);
+    border-left:3px solid #00ff99;
+    line-height:1.4;
+  ">
+    <div>> Initializing core...</div>
+    <div>> Loading UI modules...</div>
+    <div>> Mounting /duta/config...</div>
+    <div>> ⚠️ <span style='color:#ff5555'>Error:</span> JavaScript engine not responding.</div>
+    <div>> System halted.</div>
+    <div style="margin-top:12px; color:#888;">[ Please enable JavaScript to continue booting DutaAI ]</div>
+  </div>
+</noscript>
       </div>
     </div>
 
@@ -152,7 +175,7 @@ window.MathJax = {
   </div>
 </div>
 
-  <main>
+  <main role="main">
     <div id="chat" aria-live="polite" style="display:none;"></div>
   </main>
 
