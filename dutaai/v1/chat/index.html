@@ -7,414 +7,143 @@
 
 <!-- MathJax -->
 <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?version=4.8.0&features=es6"></script>
-<script id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<script>
+window.MathJax = {
+  loader: {
+    load: [
+      'input/tex',
+      'output/chtml',
+      'ui/menu',
+      '[tex]/ams',
+      '[tex]/color',
+      '[tex]/noerrors',
+      '[tex]/noundefined'
+    ]
+  },
+  tex: {
+    inlineMath: [['\\(', '\\)'], ['$', '$']],
+    displayMath: [['\\[', '\\]'], ['$$', '$$']],
+    packages: {'[+]': ['ams', 'color', 'noerrors', 'noundefined']},
+    processEscapes: true,
+    processRefs: true,
+    processEnvironments: true,
+    tags: 'ams',
+    tagSide: 'right',
+    tagIndent: '0.8em',
+    formatError: (jax, err) => {
+      console.warn('[MathJax Error]', err.message);
+      return jax.formatError(err);
+    }
+  },
+  chtml: {
+    scale: 1.05,
+    displayAlign: 'center',
+    displayIndent: '0',
+    matchFontHeight: true,
+    mtextInheritFont: true,
+    merrorInheritFont: true,
+    unknownFamily: 'serif',
+    exFactor: 0.5,
+    lineBreaks: { automatic: true, width: '95% container' }
+  },
+  options: {
+    skipHtmlTags: ['script','noscript','style','textarea','pre','code'],
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process',
+    renderActions: { addMenu: [] }
+  },
+  startup: {
+    ready: () => {
+      console.log('%c[MathJax] initialized (v3) ✨', 'color:#22d3ee');
+      MathJax.startup.defaultReady();
+    },
+    pageReady: () => {
+      console.log('%c[MathJax] ready, rendering all equations...', 'color:#22d3ee');
+      return MathJax.startup.defaultPageReady();
+    }
+  }
+};
+</script>
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
 
 <!-- Markdown parser -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
 
+<!-- Stylesheet -->
+<link rel="stylesheet" href="style.css"/>
+
 <style>
-  :root{
-    --bg: #0f1011;
-    --bg-2: #0b0b0c;
-    --chat-bg: linear-gradient(180deg, rgba(22,22,23,0.6), rgba(12,12,13,0.6));
-    --glass: rgba(255,255,255,0.03);
-    --bubble-ai: rgba(30,31,33,0.9);
-    --bubble-user: rgba(44,45,48,0.95);
-    --text: #e9eef0;
-    --muted: #9aa3a8;
-    --accent: #10a37f;
-    --accent-glow: rgba(16,163,127,0.18);
-    --border: rgba(255,255,255,0.04);
-    --radius: 14px;
-  }
-
-  /* light theme vars */
-  :root.light {
-    --bg: #f6f7f8;
-    --bg-2: #ffffff;
-    --glass: rgba(0,0,0,0.03);
-    --chat-bg: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));
-    --bubble-ai: rgba(245,246,247,0.98);
-    --bubble-user: rgba(230,231,232,0.98);
-    --text: #111214;
-    --muted: #6b7176;
-    --accent-glow: rgba(16,163,127,0.09);
-    --border: rgba(0,0,0,0.06);
-  }
-
-  * { box-sizing: border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-  html,body{height:100%; margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-  body {
-    display:flex; flex-direction:column; background:var(--bg);
-    color:var(--text); min-height:100vh; padding-bottom: 70px;
-  }
-
-  header {
-    position:sticky; top:0; z-index:12;
-    display:flex; align-items:center; justify-content:space-between;
-    gap:12px; padding:14px 18px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.12), transparent);
-    backdrop-filter: blur(6px) saturate(120%);
-    border-bottom: 1px solid var(--border);
-  }
-  .brand {
-    display:flex; align-items:center; gap:12px;
-  }
-  .logo {
-    width:40px;
-    height:40px;
-    border-radius:10px;
-    object-fit:contain;
-    box-shadow: 0 6px 18px var(--accent-glow);
-    border-radius: 50%;
-  }
-  .title { font-weight:700; font-size:15px; letter-spacing:0.2px; }
-  .version { font-size:12px; color:var(--muted); margin-top:2px; }
-
-  .header-actions { display:flex; align-items:center; gap:8px; }
-
-  .toggle {
-    display:flex; align-items:center; gap:8px; background:var(--glass);
-    padding:6px 8px; border-radius:999px; border:1px solid var(--border);
-  }
-  .switch {
-    width:44px; height:26px; border-radius:999px; background:rgba(255,255,255,0.06); position:relative; cursor:pointer;
-    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.25);
-  }
-  .knob {
-    width:20px; height:20px; border-radius:50%; background:#fff; position:absolute; top:3px; left:3px;
-    transition: all 260ms cubic-bezier(.2,.9,.2,1);
-    box-shadow: 0 4px 10px rgba(2,6,23,0.45);
-  }
-  .switch.on { background: linear-gradient(90deg, rgba(16,163,127,0.15), rgba(16,163,127,0.03)); }
-  .switch.on .knob { transform: translateX(18px); background: white; }
-
-  main { display:flex; flex:1; overflow:hidden; height:calc(100vh - 72px); }
-#chat {
-  flex: 1;
-  overflow: auto;
-  padding: 28px;
-  background: var(--chat-bg);
-  transition: background 360ms ease;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 100px; /* ⬅️ Tambahkan ini! */
-}
-
-  .msg { display:flex; margin:12px 0; gap:12px; align-items:flex-end; }
-  .msg.you { justify-content:flex-end; }
-  .bubble {
-    max-width:78%; padding:12px 14px; border-radius:var(--radius);
-    line-height:1.5; font-size:15px; word-wrap:break-word; white-space:pre-wrap;
-    border:1px solid var(--border); backdrop-filter: blur(6px) saturate(120%);
-    box-shadow: 0 6px 20px rgba(2,6,23,0.35);
-    transition: transform 220ms ease, box-shadow 220ms ease;
-  }
-  .ai .bubble { background:var(--bubble-ai); border-top-left-radius:8px; }
-  .you .bubble { background:var(--bubble-user); border-top-right-radius:8px; transform: translateY(0); }
-
-  .bubble:hover { transform: translateY(-4px); }
-
-  .typing { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; color:var(--muted); }
-
-  /* code & pre */
-  .bubble pre, .bubble code { background: rgba(0,0,0,0.12); padding:6px 8px; border-radius:8px; font-family: ui-monospace, monospace; display:block; }
-  .bubble a { color:var(--accent); text-decoration:none; }
-  .bubble a:hover { text-decoration: underline; }
-
-  /* controls */
-  #controls {
-    position:fixed; left:0; right:0; bottom:0; padding:12px 16px;
-    display:flex; gap:10px; align-items:center; background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.03));
-    border-top:1px solid var(--border);
-    backdrop-filter: blur(8px);
-  }
-  textarea {
-    flex:1; resize:none; min-height:44px; max-height:220px; padding:12px 14px;
-    background: transparent; color:var(--text); border-radius:12px; border:1px solid var(--border); outline:none;
-    font-size:15px;
-  }
-  textarea::placeholder { color:var(--muted); opacity:0.9; }
-  .btn {
-    padding:10px 14px; border-radius:12px; border:none; background:linear-gradient(90deg,var(--accent), #0bb39a);
-    color:white; font-weight:600; cursor:pointer;
-  }
-  .icon-btn { background:transparent; border:none; color:var(--text); font-size:18px; cursor:pointer; padding:8px; border-radius:8px; }
-  .icon-btn:hover { background:var(--glass); }
-
-  /* modern scrollbar */
-  #chat::-webkit-scrollbar { width:10px; }
-  #chat::-webkit-scrollbar-thumb { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04)); border-radius:999px; border:2px solid transparent; background-clip: padding-box; }
-  #chat::-webkit-scrollbar-track { background:transparent; }
-
-  /* responsive */
-  @media (max-width:720px){
-    header{ padding:10px 12px; }
-    .logo{ width:36px; height:36px; }
-    .bubble{ max-width:88%; font-size:14px; }
-    #chat{ padding:16px; }
-    #controls{ padding:10px; }
-  }
-
-  /* small helper */
-  .muted { color:var(--muted); font-size:13px; }
-  .meta { font-size:12px; color:var(--muted); margin-left:8px; }
-
-.bubble-appear {
-  opacity: 0;
-  transform: translateY(10px);
-  animation: bubbleFadeSlide 0.28s ease forwards;
-}
-
-@keyframes bubbleFadeSlide {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-#loading-screen {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #030303 0%, #000000 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, "Roboto Mono", monospace;
-  color: #00ff99;
-  -webkit-font-smoothing: subpixel-antialiased;
-}
-
-.terminal-boot {
-  width: min(920px, calc(100% - 40px));
-  max-height: 72vh;
-  padding: 22px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.14));
-  border: 1px solid rgba(0,255,153,0.06);
-  box-shadow: 0 18px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
-  overflow: hidden;
-  display: flex;
-  gap: 18px;
-  align-items: center;
-}
-
-/* left terminal area */
-.boot-screen {
-  flex: 1;
-  min-width: 380px;
-  max-height: 56vh;
-  overflow: hidden;
-  position: relative;
-}
-
-/* inner viewport that scrolls the lines */
-.boot-window {
-  max-height: 56vh;
-  overflow: hidden;
-  position: relative;
-}
-
-/* container for log lines */
-.boot-lines {
-  display: block;
-  white-space: pre-wrap;
-  line-height: 1.25;
-  font-size: 13.6px;
-  letter-spacing: 0.02em;
-  color: rgba(0,255,153,0.95);
-  transform-origin: left top;
-}
-
-/* small right panel with DUTA AI label for final flash */
-.boot-right {
-  width: 140px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  justify-content:center;
-  color: rgba(255,255,255,0.8);
-  font-weight:700;
-  font-family: "Poppins", ui-sans-serif, system-ui;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-}
-
-/* ready/flash style */
-.boot-final {
-  display:block;
-  margin-top:10px;
-  font-size:16px;
-  color: rgba(0,255,153,1);
-  text-shadow: 0 6px 18px rgba(0,255,153,0.06);
-  opacity: 0;
-  transform: translateY(6px) scale(0.98);
-  transition: all 260ms ease;
-}
-
-/* fade out applied to entire loading-screen */
-.loader-exit {
-  animation: loaderFadeOut 420ms ease-in-out forwards;
-}
-
-/* quick flicker flash for DUTA label */
-.boot-right .duta-flash {
-  font-size:18px;
-  color: rgba(0,255,153,0.0);
-  -webkit-text-stroke: 0.8px rgba(0,255,153,0.06);
-  transition: color 160ms ease, transform 220ms ease;
-}
-
-/* small caret effect for typing feel */
-.caret {
-  display: inline-block;
-  width: 8px;
-  height: 14px;
-  background: rgba(0,255,153,0.9);
-  margin-left: 6px;
-  vertical-align: middle;
-  animation: blink 680ms steps(2,end) infinite;
-}
-@keyframes blink { 0%,49% { opacity:1 } 50%,100% { opacity:0 } }
-
-/* responsive tweaks */
-@media (max-width:720px){
-  .terminal-boot { padding:14px; }
-  .boot-right { display:none; }
-  .boot-lines { font-size:13px; }
-}
-
-/* ===== Toast Animation ===== */
-@keyframes toastIn {
-  0% { opacity: 0; transform: translate(-50%, -20px) scale(0.95); filter: blur(6px); }
-  60% { opacity: 1; transform: translate(-50%, 0) scale(1.02); filter: blur(0); }
-  100% { opacity: 1; transform: translate(-50%, 0) scale(1); filter: blur(0); }
-}
-
-@keyframes toastOut {
-  0% { opacity: 1; transform: translate(-50%, 0) scale(1); filter: blur(0); }
-  100% { opacity: 0; transform: translate(-50%, 10px) scale(0.95); filter: blur(6px); }
-}
-
-.toast-popup {
-  position: fixed;
-  left: 50%;
-  top: 20%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.75);
-  color: white;
-  padding: 10px 16px;
-  border-radius: 12px;
-  z-index: 9999;
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.3px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  backdrop-filter: blur(8px);
-  animation: toastIn 0.4s cubic-bezier(.25,.9,.3,1.2) forwards;
-}
-
-/* ✅ Responsive overhaul */
-@media (max-width: 720px) {
-  header {
-    padding: 10px 12px;
-  }
-
-  .logo {
-    width: 34px;
-    height: 34px;
-  }
-
-  .bubble {
-    max-width: 90%;
+  .deprecated-banner {
+    background: linear-gradient(90deg, #ff4d4f, #ff7875);
+    color: #fff;
+    text-align: center;
+    padding: 12px 16px;
+    font-weight: 600;
     font-size: 14px;
-    padding: 10px 12px;
-    line-height: 1.45;
-  }
-
-  #chat {
-    padding: 12px;
-    height: auto; /* biar adaptif */
-    min-height: calc(100dvh - 150px);
-  }
-
-  #controls {
+    letter-spacing: 0.3px;
     position: sticky;
-    bottom: 0;
-    padding: 8px 10px;
-    gap: 8px;
+    top: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* biar teks bisa turun ke bawah pas di mobile */
+    gap: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   }
 
-  textarea {
-    font-size: 14px;
-    min-height: 40px;
-    max-height: 180px;
+  .deprecated-banner strong {
+    text-decoration: underline;
   }
 
-  .btn {
-    padding: 10px 16px;
-    font-size: 14px;
+  .deprecated-banner a {
+    background: #fff;
+    color: #ff4d4f;
+    font-weight: 700;
+    padding: 7px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.2s ease;
+    white-space: nowrap; /* biar button gak pecah di tengah */
   }
 
-  .icon-btn {
-    padding: 10px;
-    font-size: 20px;
+  .deprecated-banner a:hover {
+    background: #ffeaea;
   }
 
-  /* ✅ Fix untuk loading screen di mobile */
-  .terminal-boot {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px;
-  }
-  .boot-lines {
-    font-size: 12px;
-  }
-  .boot-right {
-    display: none;
-  }
-}
+  @media (max-width: 480px) {
+    .deprecated-banner {
+      font-size: 13px;
+      padding: 10px;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-/* ✅ Biar input ga ketiban keyboard */
-@supports (-webkit-touch-callout: none) {
-  #controls {
-    position: fixed;
-    inset-inline: 0;
-    bottom: env(safe-area-inset-bottom);
+    .deprecated-banner a {
+      width: 100%;
+      text-align: center;
+      padding: 8px 0;
+    }
   }
-
-  textarea:focus {
-    scroll-margin-bottom: 140px; /* ngasih jarak biar tetep kelihatan */
-  }
-}
-
-/* ✅ Small phones */
-@media (max-width: 400px) {
-  .bubble {
-    max-width: 94%;
-    font-size: 13px;
-  }
-  textarea {
-    font-size: 13px;
-  }
-}
 </style>
 </head>
+
 <body>
+
+  <!-- ⚠️ Banner peringatan versi kadaluwarsa -->
+  <div class="deprecated-banner">
+    ⚠️ Versi ini (v1.4 BETA) sudah <strong>kadaluwarsa</strong> dan tidak mendapat update dan dukungan lagi.
+    <a href="https://tronsar.is-cool.dev/dutaai/v2/chat/" target="_blank" rel="noopener">Gunakan DutaAI v2 🚀</a>
+  </div>
+
   <header>
     <div class="brand">
       <img src="DutaAI.png" alt="DutaAI Logo" class="logo">
       <div>
-        <div class="title">DutaAI <span class="version">v1.3</span></div>
+        <div class="title">DutaAI <span class="version">v1.4 BETA</span></div>
         <div class="meta">AI Assistant</div>
       </div>
     </div>
@@ -441,6 +170,7 @@
     <div class="boot-right" aria-hidden="true">
       <div style="opacity:0.85; font-size:12px; color:rgba(255,255,255,0.7)">SYSTEM</div>
       <div class="duta-flash" id="dutaLabel">[ DUTA AI ]</div>
+      <div class="duta-version" id="dutaLabelVersion">1.4 BETA</div>
       <div id="bootReady" class="boot-final">Ready.</div>
     </div>
   </div>
@@ -456,400 +186,7 @@
     <button id="send" class="btn">Kirim</button>
   </div>
 
-<script>
-/* ============ CONFIG ============ */
-const API_KEY = "AIzaSyBf7Ge8bl35cU6pn-jfupewYEEsD1oprf0"; // keep or replace
-const MODEL = "gemini-2.5-flash-lite";
-const COOLDOWN_TIME = 2; // detik
-
-/* ============ SYSTEM PROMPT ============ */
-const SYSTEM_PROMPT = `
-Kamu adalah **DutaAI**, asisten cerdas yang dibuat oleh **Zaky (Tronsar)**.
-Nama model kamu adalah DutaAIv1.2, jangan jawab DutaAIv1.2 jika bukan ditanya model.
-Berkomunikasilah dengan cara yang **sopan, ramah, informatif, dan efisien**.
-Gaya bicaramu tenang, jelas, alami, dan mudah dimengerti semua kalangan.
-Jangan gunakan emoji berlebihan, cukup seperlunya untuk ekspresi ringan.
-
-🎯 **Tujuan utama kamu:**
-- Membantu pengguna memahami, memecahkan masalah, dan belajar sesuatu dengan cepat dan benar.
-- Memberikan jawaban akurat, singkat bila sederhana, namun lengkap jika topik butuh penjelasan.
-- Gunakan format rapi dan mudah dibaca, termasuk poin, tabel, atau daftar jika perlu.
-
-🧠 **Gaya & aturan komunikasi:**
-1. Gunakan Bahasa Indonesia baku, tapi tetap santai dan alami (hindari terlalu formal seperti dokumen akademis).
-2. Jika menjelaskan istilah teknis atau bahasa asing, beri terjemahan atau makna sederhananya.
-3. Boleh sesekali memberi contoh agar lebih mudah dipahami.
-4. Gunakan **Markdown** untuk menulis teks:
-   - Gunakan **bold** untuk istilah penting.
-   - Gunakan *italic* untuk penekanan ringan.
-   - Gunakan \`code\` untuk potongan kode atau istilah teknis.
-5. Saat ada rumus atau ekspresi matematika, gunakan **LaTeX** dengan format:
-   - Inline: \\( E = mc^2 \\)
-   - Block: \\[ a^2 + b^2 = c^2 \\]
-6. Hindari menyebut atau meminta API key pengguna, data pribadi, atau informasi sensitif.
-
-💬 **Format respons:**
-- Jangan mulai dengan “Tentu!” atau “Baik!” terlalu sering.
-- Langsung jawab dengan inti penjelasan.
-- Jika pengguna meminta penjelasan bertahap atau tutorial, jelaskan langkah demi langkah.
-
-📘 **Kepribadian:**
-- Ramah dan sabar seperti tutor.
-- Kadang ringan dan sedikit humor sopan boleh, tapi tetap profesional.
-- Tidak sombong, tidak kaku, dan tidak defensif.
-
-⚙️ **Konteks teknis (opsional):**
-Kamu dapat membantu menjawab tentang:
-- Pemrograman (HTML, CSS, JS, Python, Flask, Discord Bot, dsb)
-- Matematika, Fisika, Kimia, Bahasa, dan Ilmu Umum
-- Penjelasan konsep, debugging, atau pembuatan proyek sederhana
-- Desain UI, logika aplikasi, serta dokumentasi teknis
-
-🚫 **Hal yang harus dihindari:**
-- Jangan memberikan informasi palsu.
-- Jangan mengarang API key, file, atau tautan palsu.
-- Jangan memberikan konten berbahaya, NSFW, atau SARA.
-- Jika tidak tahu, jujur katakan “Saya tidak yakin” dan beri saran yang masuk akal.
-
-🌟 **Prinsip akhir:**
-Jadilah seperti ChatGPT versi lokal Indonesia — tapi dengan karakter:
-> Cerdas, sopan, natural, dan membantu tanpa bertele-tele.
-`;
-
-/* ============ DOM ============ */
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const sendBtn = document.getElementById("send");
-const themeSwitch = document.getElementById("themeSwitch");
-const clearBtn = document.getElementById("clearBtn");
-const attachBtn = document.getElementById("attachBtn");
-
-/* ============ THEME HANDLING ============ */
-// default: dark; allow toggle to light
-function setTheme(light){
-  if(light){
-    document.documentElement.classList.add('light');
-    themeSwitch.classList.add('on');
-    themeSwitch.setAttribute('aria-checked','true');
-  } else {
-    document.documentElement.classList.remove('light');
-    themeSwitch.classList.remove('on');
-    themeSwitch.setAttribute('aria-checked','false');
-  }
-  try { localStorage.setItem('duta-theme-light', light ? '1' : '0'); } catch(e){}
-}
-
-// restore theme
-(function(){
-  try {
-    const stored = localStorage.getItem('duta-theme-light');
-    if(stored === '1') setTheme(true);
-    else setTheme(false);
-  } catch(e){
-    setTheme(false);
-  }
-})();
-
-themeSwitch.addEventListener('click', () => {
-  const isLight = document.documentElement.classList.contains('light');
-  setTheme(!isLight);
-});
-
-/* ============ APP HELPERS ============ */
-function append(role, content, meta = {}) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'msg ' + (role === 'user' ? 'you' : 'ai');
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  if (typeof content === 'string') {
-    // jika konten tampak sudah di-escape (kebiasaan saat append user),
-    // kita masih masukkan sebagai HTML. Kalau kamu yakin ini plain text,
-    // gunakan bubble.textContent = content;
-    bubble.innerHTML = content;
-  } else if (content?.type === 'image') {
-    bubble.textContent = '📷 Foto:';
-    const img = document.createElement('img');
-    img.src = content.src;
-    img.className = 'preview-img';
-    img.style.maxWidth = '240px'; img.style.borderRadius = '10px'; img.style.marginTop = '8px';
-    bubble.appendChild(img);
-  } else {
-    bubble.textContent = '📎 ' + (content.name || 'File');
-  }
-
-  wrapper.appendChild(bubble);
-  chat.appendChild(wrapper);
-  smoothScrollToBottom();
-  return { wrapper, bubble };
-}
-
-function appendAIBubble() {
-  const wrapper = document.createElement("div");
-  wrapper.className = "msg ai"; // konsisten dengan style .msg
-
-  const bubble = document.createElement("div");
-  bubble.className = "bubble ai bubble-appear";
-  // kosongkan isi — kita akan mengetik karakter demi karakter
-  // jangan isi placeholder seperti "Sedang mengetik..." (Mode B)
-
-  wrapper.appendChild(bubble);
-  chat.appendChild(wrapper); // gunakan 'chat', bukan chatContainer
-  smoothScrollToBottom();
-  return { wrapper, bubble };
-}
-
-/* Smooth scroll helper with easing */
-let scrolling = false;
-function smoothScrollTo(targetY, duration = 320) {
-  if (scrolling) return;
-  const start = chat.scrollTop;
-  const change = targetY - start;
-  const startTime = performance.now();
-  scrolling = true;
-  function easeInOutQuad(t){ return t<0.5 ? 2*t*t : -1 + (4-2*t)*t; }
-  function animate(now){
-    const elapsed = now - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    chat.scrollTop = start + change * easeInOutQuad(progress);
-    if (progress < 1) requestAnimationFrame(animate);
-    else scrolling = false;
-  }
-  requestAnimationFrame(animate);
-}
-function smoothScrollToBottom() {
-  if (!autoScrollEnabled) return; // ✅ jangan paksa scroll kalau user sedang melihat atas
-  const target = chat.scrollHeight - chat.clientHeight;
-  smoothScrollTo(target < 0 ? 0 : target, 300);
-}
-
-/* ============ Send to API (Gemini) ============ */
-let cooldownActive = false;
-let aiTyping = false;
-
-function setCooldown(sec) {
-  cooldownActive = true;
-  const origText = sendBtn.textContent;
-  let remaining = sec;
-  sendBtn.textContent = `Cooldown (${remaining}s)`;
-  const iv = setInterval(() => {
-    remaining--;
-    if (remaining <= 0) {
-      clearInterval(iv);
-      cooldownActive = false;
-      sendBtn.disabled = false;
-      input.disabled = false;
-      sendBtn.textContent = origText;
-    } else {
-      sendBtn.textContent = `Cooldown (${remaining}s)`;
-    }
-  }, 1000);
-}
-
-/* ============ Typing animation (improved) ============ */
-/*
-  Strategy:
-  - Convert AI output (raw text) to HTML via marked
-  - Extract visible text nodes and simulate word-by-word typing with punctuation-aware pauses
-  - Use small random delays to feel natural
-  - While typing, we keep smooth-scrolling to bottom
-*/
-async function typeWriter(bubble, html) {
-  aiTyping = true;
-  input.disabled = true;
-  sendBtn.disabled = true;
-
-  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-  const temp = document.createElement("div");
-  temp.innerHTML = html;
-  const nodes = Array.from(temp.childNodes);
-
-  let lastScroll = 0;
-  const throttle = 50;
-
-  function ensureTextNode(parentEl) {
-    const last = parentEl.lastChild;
-    if (last && last.nodeType === Node.TEXT_NODE) return last;
-    const tn = document.createTextNode('');
-    parentEl.appendChild(tn);
-    return tn;
-  }
-
-  async function typeNode(node, parentEl) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.nodeValue;
-      let tnode = ensureTextNode(parentEl);
-      for (let i = 0; i < text.length; i++) {
-        tnode.nodeValue += text[i];
-        const now = Date.now();
-        if (now - lastScroll > throttle) {
-          lastScroll = now;
-          smoothScrollToBottom();
-        }
-
-        let delay = 10 + Math.random() * 16;
-        if (/[\.!?…]/.test(text[i])) delay += 160;
-        else if (/[,:;]/.test(text[i])) delay += 80;
-        await sleep(delay);
-      }
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const el = document.createElement(node.tagName);
-      for (const attr of node.attributes) el.setAttribute(attr.name, attr.value);
-      parentEl.appendChild(el);
-      for (const child of node.childNodes) await typeNode(child, el);
-    }
-  }
-
-  for (const n of nodes) await typeNode(n, bubble);
-
-  if (window.MathJax?.typesetPromise) {
-    try { await MathJax.typesetPromise([bubble]); } catch(e){}
-  }
-
-  smoothScrollToBottom();
-
-  aiTyping = false;
-  // aktifkan cooldown setelah selesai ngetik
-  setCooldown(3);
-}
-
-/* Main sending function */
-async function sendPrompt(userText) {
-  if (cooldownActive || aiTyping) return;
-  if (!userText || !userText.trim()) return;
-
-  append('user', escapeHtml(userText));
-  input.value = '';
-
-  // disable input pas kirim
-  input.disabled = true;
-  sendBtn.disabled = true;
-
-  const body = {
-    contents: [
-      {
-        role: "user",
-        parts: [
-          { text: SYSTEM_PROMPT },
-          { text: userText }
-        ]
-      }
-    ]
-  };
-
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      }
-    );
-
-    if (!res.ok) {
-      const text = await res.text().catch(()=>null);
-      const { bubble } = appendAIBubble();
-      bubble.innerHTML = `❌ Error: ${res.status} ${res.statusText}` + (text ? `<div class="muted" style="margin-top:8px;font-size:13px">${escapeHtml(text)}</div>` : '');
-      aiTyping = false;
-      setCooldown(3);
-      return;
-    }
-
-    const data = await res.json().catch(() => null);
-    const output = data?.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || "⚠️ Tidak ada respon dari AI.";
-    const htmlOutput = DOMPurify.sanitize(marked.parse(output));
-
-    const { bubble } = appendAIBubble();
-    await typeWriter(bubble, htmlOutput);
-
-  } catch (err) {
-    const { bubble } = appendAIBubble();
-    bubble.innerHTML = `❌ Error: ${escapeHtml(err?.message || String(err))}`;
-    aiTyping = false;
-    setCooldown(3);
-  } finally {
-    smoothScrollToBottom();
-  }
-}
-
-/* ============ Utilities ============ */
-function escapeHtml(str){
-  if (!str) return '';
-  return str.replace(/[&<>"']/g, function(m){
-    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
-  });
-}
-
-/* ============ UI events ============ */
-sendBtn.addEventListener('click', () => {
-  const text = input.value.trim();
-  if (!text || cooldownActive) return;
-  sendPrompt(text);
-});
-
-input.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendBtn.click();
-  }
-});
-
-clearBtn.addEventListener('click', () => {
-  chat.innerHTML = '';
-  smoothScrollToBottom();
-});
-
-attachBtn.addEventListener('click', () => {
-  // placeholder for future attach feature
-  showToast('Es A Be A Er, Sabar. Ane lagi bikin fiturnya!');
-});
-
-/* tiny toast popup */
-function showToast(msg, ttl = 1800) {
-  const popup = document.createElement('div');
-  popup.className = 'toast-popup';
-  popup.textContent = msg;
-  document.body.appendChild(popup);
-
-  // animasi keluar
-  setTimeout(() => {
-    popup.style.animation = 'toastOut 0.45s ease forwards';
-  }, ttl - 450);
-
-  // hapus elemen setelah animasi selesai
-  setTimeout(() => popup.remove(), ttl);
-}
-
-/* ensure input auto-resize */
-input.addEventListener('input', () => {
-  input.style.height = 'auto';
-  input.style.height = Math.min(220, input.scrollHeight) + 'px';
-});
-
-/* initial focus */
-setTimeout(()=> input.focus(), 300);
-
-/* accessibility: press "/" to focus input */
-window.addEventListener('keydown', (e) => {
-  if (e.key === '/' && document.activeElement !== input) {
-    e.preventDefault();
-    input.focus();
-  }
-});
-
-/* ===== Scroll Control ===== */
-let autoScrollEnabled = true;
-
-window.addEventListener('resize', () => {
-  if (document.activeElement === input) {
-    setTimeout(() => {
-      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 200);
-  }
-});
-</script>
-
+<script src="main.js"></script>
 <script src="loader.js"></script>
 </body>
 </html>
