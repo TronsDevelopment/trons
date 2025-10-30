@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DutaAI – Asisten Cerdas Lokal</title>
+  <link rel="icon" href="DutaAI.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+  <style>
+    :root {
+      --bg: #0f1011;
+      --bg-2: #0b0b0c;
+      --primary: #00d9ff;
+    }
+    body {
+      background: radial-gradient(circle at top, var(--bg) 0%, var(--bg-2) 100%);
+      color: #f5f5f5;
+      font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
+    }
+    .bg-card { background: rgba(255,255,255,0.05); }
+    .text-primary { color: var(--primary); }
+    .bg-primary { background-color: var(--primary); color: #000; }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+  <!-- 🌟 Navbar -->
+  <header class="fixed w-full backdrop-blur-md bg-black/40 border-b border-white/10 z-50">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <h1 class="text-2xl font-bold text-primary">DutaAI</h1>
+      <div class="space-x-6 text-sm hidden md:flex">
+        <a href="#features" class="hover:text-primary">Fitur</a>
+        <a href="#demo" class="hover:text-primary">Demo</a>
+        <a href="#team" class="hover:text-primary">Tim</a>
+        <a href="#pricing" class="hover:text-primary">Plan</a>
+      </div>
+      <button class="bg-primary text-black font-semibold px-4 py-2 rounded-lg hover:scale-105 transition">Login</button>
+    </nav>
+  </header>
+
+  <!-- 🏠 Hero -->
+  <section class="pt-36 text-center max-w-3xl mx-auto px-6" data-aos="fade-up">
+    <h2 class="text-4xl md:text-6xl font-extrabold mb-6">Asisten AI <span class="text-primary">Lokal</span> buat Semua Orang</h2>
+    <p class="text-gray-400 text-lg mb-8">Ngobrol, nanya, dan eksplor ide bareng AI cerdas yang ngerti gaya kamu.</p>
+    <button class="bg-primary text-black font-semibold px-6 py-3 rounded-xl hover:scale-105 transition">Mulai Sekarang</button>
+    <div class="mt-6 inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-sm font-semibold">
+      🏅 Temen Zaky
+    </div>
+  </section>
+
+  <!-- 📊 Mini Stats -->
+  <section class="max-w-5xl mx-auto mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 text-center" data-aos="fade-up">
+    <div>
+      <h3 class="text-3xl font-bold text-primary">3</h3>
+      <p class="text-gray-400 text-sm">Pengguna aktif</p>
+    </div>
+    <div>
+      <h3 class="text-3xl font-bold text-primary">6</h3>
+      <p class="text-gray-400 text-sm">Fitur AI</p>
+    </div>
+    <div>
+      <h3 class="text-3xl font-bold text-primary">72.3%</h3>
+      <p class="text-gray-400 text-sm">Uptime</p>
+    </div>
+    <div>
+      <h3 class="text-3xl font-bold text-primary">88%</h3>
+      <p class="text-gray-400 text-sm">Respons cepat</p>
+    </div>
+  </section>
+
+  <!-- 💎 Glassmorphism Features -->
+  <section id="features" class="max-w-6xl mx-auto mt-28 grid md:grid-cols-3 gap-8 px-6" data-aos="fade-up">
+    <div class="bg-card/60 backdrop-blur-xl border border-white/10 shadow-xl p-8 rounded-2xl">
+      <h3 class="text-xl font-semibold text-primary mb-3">⚡ Cepat & Ringan</h3>
+      <p class="text-gray-300">Masih ngebut walau di HP kentang. Optimized banget buat semua device.</p>
+    </div>
+    <div class="bg-card/60 backdrop-blur-xl border border-white/10 shadow-xl p-8 rounded-2xl">
+      <h3 class="text-xl font-semibold text-primary mb-3">🧠 Cerdas & Natural</h3>
+      <p class="text-gray-300">Ngobrol kayak manusia beneran. Didesain biar nyambung dan adaptif.</p>
+    </div>
+    <div class="bg-card/60 backdrop-blur-xl border border-white/10 shadow-xl p-8 rounded-2xl">
+      <h3 class="text-xl font-semibold text-primary mb-3">🔒 Aman & Privasi</h3>
+      <p class="text-gray-300">Data kamu nggak dijual. Semua terenkripsi aman.</p>
+    </div>
+  </section>
+
+  <!-- 💬 AI Preview Box -->
+  <section id="demo" class="max-w-xl mx-auto mt-28 bg-card/70 backdrop-blur-lg border border-gray-700 p-6 rounded-2xl" data-aos="fade-up">
+    <h3 class="text-xl font-bold mb-3 text-primary">🎯 Coba DutaAI Cepat</h3>
+    <textarea id="demoInput" placeholder="Tanya apa aja..." class="w-full bg-black/40 border border-gray-700 rounded-lg p-3 text-white h-24"></textarea>
+    <button onclick="fakeAIResponse()" class="mt-3 px-5 py-2 bg-primary rounded-lg font-semibold hover:scale-105 transition">Kirim</button>
+    <p id="demoOutput" class="mt-4 text-gray-400"></p>
+  </section>
+
+  <!-- 🌟 Testimonials -->
+  <section class="max-w-6xl mx-auto mt-28 text-center px-6" data-aos="fade-up">
+    <h2 class="text-3xl font-bold mb-8">Apa Kata Mereka 💬</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-card/60 backdrop-blur-lg p-6 rounded-2xl border border-white/10">
+        <p class="text-gray-300">“Calon ranking satu bikin AI euyy!”</p>
+        <h4 class="mt-3 text-primary font-semibold">– Gangan, Pelajar</h4>
+      </div>
+      <div class="bg-card/60 backdrop-blur-lg p-6 rounded-2xl border border-white/10">
+        <p class="text-gray-300">“Bagus, natural, tapi masih ada yang harus ditambah.”</p>
+        <h4 class="mt-3 text-primary font-semibold">– Juliansah, Pelajar</h4>
+      </div>
+      <div class="bg-card/60 backdrop-blur-lg p-6 rounded-2xl border border-white/10">
+        <p class="text-gray-300">“Not good or bad.”</p>
+        <h4 class="mt-3 text-primary font-semibold">– Ryan, Freelancer</h4>
+      </div>
+    </div>
+  </section>
+
+  <!-- 👥 Meet The Team -->
+  <section id="team" class="max-w-6xl mx-auto mt-28 text-center px-6" data-aos="fade-up">
+    <h2 class="text-3xl font-bold mb-8">Kenalan Sama Tim Kami 🤝</h2>
+    <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="bg-card/60 backdrop-blur-lg p-5 rounded-2xl border border-white/10">
+        <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=Tronsar" class="w-20 h-20 mx-auto rounded-full mb-3">
+        <h3 class="text-lg font-semibold text-primary">Zaky</h3>
+        <p class="text-gray-400 text-sm">Lead Developer</p>
+      </div>
+      <div class="bg-card/60 backdrop-blur-lg p-5 rounded-2xl border border-white/10">
+        <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=PENDEKAR" class="w-20 h-20 mx-auto rounded-full mb-3">
+        <h3 class="text-lg font-semibold text-primary">Juliansah</h3>
+        <p class="text-gray-400 text-sm">1st Beta Tester</p>
+      </div>
+      <div class="bg-card/60 backdrop-blur-lg p-5 rounded-2xl border border-white/10">
+        <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=HEBWAT" class="w-20 h-20 mx-auto rounded-full mb-3">
+        <h3 class="text-lg font-semibold text-primary">Gangan</h3>
+        <p class="text-gray-400 text-sm">3rd Beta Tester</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 📋 Feature Comparison -->
+  <section id="pricing" class="max-w-5xl mx-auto mt-28 text-center px-6" data-aos="fade-up">
+    <h2 class="text-3xl font-bold mb-6">Perbandingan Plan 📊</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-gray-300 border border-gray-700 rounded-2xl overflow-hidden">
+        <thead class="bg-card text-primary">
+          <tr>
+            <th class="p-3">Fitur</th>
+            <th class="p-3">Gratis</th>
+            <th class="p-3">Pro</th>
+            <th class="p-3">Elite</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t border-gray-700"><td class="p-3 text-left">Akses Chat</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          <tr class="border-t border-gray-700"><td class="p-3 text-left">Prioritas Server</td><td>❌</td><td>✅</td><td>✅</td></tr>
+          <tr class="border-t border-gray-700"><td class="p-3 text-left">AI Kreatif Mode</td><td>❌</td><td>✅</td><td>✅</td></tr>
+          <tr class="border-t border-gray-700"><td class="p-3 text-left">Support Premium</td><td>❌</td><td>❌</td><td>✅</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ⏳ Countdown -->
+  <section class="max-w-xl mx-auto mt-24 text-center" data-aos="fade-up">
+    <h2 class="text-2xl font-bold text-primary mb-2">🚧 Plan Pro & Elite Coming Soon</h2>
+    <p class="text-gray-400 mb-4">Rilis dalam <span id="countdown"></span></p>
+  </section>
+
+  <!-- ⚡ Footer -->
+  <footer class="mt-24 py-8 border-t border-white/10 text-center text-gray-500 text-sm">
+    © 2025 DutaAI. Dibuat dengan 💙 oleh Tim Zaky.
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 800, once: true });
+
+    // Fake AI Response
+    function fakeAIResponse(){
+      const input = document.getElementById('demoInput').value;
+      const out = document.getElementById('demoOutput');
+      if(!input) return out.textContent = "Ketik dulu dong 😅";
+      const replies = [
+        "Hmm menarik banget pertanyaannya 🤔",
+        "Gue bantu jawab bentar ya...",
+        "Oke, udah siap jawab nih 😎",
+        "Ini jawaban versi cepatnya 👇"
+      ];
+      out.textContent = replies[Math.floor(Math.random()*replies.length)];
+    }
+
+    // Countdown
+    const targetDate = new Date("2025-11-10T00:00:00").getTime();
+    const countdownEl = document.getElementById("countdown");
+    setInterval(() => {
+      const now = new Date().getTime();
+      const diff = targetDate - now;
+      if (diff <= 0) return countdownEl.textContent = "Udah siap rilis! 🚀";
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+      countdownEl.textContent = `${days} hari ${hours} jam lagi`;
+    }, 1000);
+  </script>
+</body>
+</html>
