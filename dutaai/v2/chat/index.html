@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id" dir="ltr">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>DutaAI v2 - Chat (ALPHA)</title>
 
 <!-- SEO & Meta -->
@@ -27,13 +27,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-startup-image" href="DutaAI.png">
 
-<meta name="author" content="Tronsar Studio">
+<meta name="author" content="Tronsar">
 <meta name="keywords" content="AI Chat, DutaAI, Assistant, Artificial Intelligence, Chatbot">
-
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data: https:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com;">
-
-<meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
 
 <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -130,15 +125,28 @@ window.MathJax = {
 </head>
 <body>
 
-  <header>
-    <div class="brand">
-      <img src="DutaAI.png" alt="DutaAI Logo" class="logo">
-      <div>
-        <div class="title">DutaAI <span class="version">v2-beta-2</span></div>
-        <div class="meta">Superb AI Assistant</div>
-      </div>
+<header class="main-header">
+  <div class="header-left">
+    <img src="DutaAI.png" alt="DutaAI Logo" class="logo" loading="lazy">
+    <div class="header-info">
+      <h1 class="app-title">
+        DutaAI <span class="app-version">v2.0</span>
+      </h1>
+      <p class="app-tagline">AI Ramah yang siap bantu anda kapan saja!</p>
     </div>
-  </header>
+  </div>
+
+  <div class="header-right">
+    <nav class="nav-links">
+      <a href="../" class="nav-item">Home</a>
+      <a href="https://tronsar.is-cool.dev/dutaai/v2 class="nav-item">Docs</a>
+      <a href="https://tronsar.is-cool.dev/dutaai/v2/changelog" id="changelogBtn" class="nav-item">Changelog</a>
+    </nav>
+    <button id="themeToggle" class="theme-toggle" title="Ganti tema" aria-label="Ganti tema">
+      🌗
+    </button>
+  </div>
+</header>
 
 <div id="loading-screen" aria-live="polite" role="status">
   <div class="terminal-boot" role="presentation" aria-hidden="false">
@@ -176,7 +184,7 @@ window.MathJax = {
 </div>
 
   <main role="main">
-    <div id="chat" aria-live="polite" style="display:none;"></div>
+    <div id="chat" aria-live="polite" style="display: none;" ></div>
   </main>
 
   <div id="controls">
@@ -184,15 +192,5 @@ window.MathJax = {
     <textarea id="input" placeholder="Ketik pertanyaanmu..." rows="1"></textarea>
     <button id="send" class="btn">Kirim</button>
   </div>
-
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(() => {
-    console.log('%c[ServiceWorker] Registered ✅', 'color:#10a37f');
-  }).catch(err => {
-    console.error('[ServiceWorker] Failed:', err);
-  });
-}
-</script>
 </body>
 </html>
