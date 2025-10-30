@@ -1,12 +1,4 @@
-// sw.js — DutaAI v2 Advanced Service Worker 🚀
-// Version: 2.1.0
-// Author: DutaAI Team
-// Purpose: Offline-first PWA caching, network optimization, smart update control
-
-// ============================
-// 🔧 CONFIG
-// ============================
-const VERSION = 'v2.1.0';
+const VERSION = 'v2.1.5';
 const CACHE_NAME = `dutaai-cache-${VERSION}`;
 const ROOT = '/dutaai/v2/chat/';
 
@@ -263,3 +255,4 @@ async function lazyCacheAssets() {
 // ✅ READY
 // ============================
 log(`DutaAI SW ${VERSION} ready to serve 🚀`);
+ 
