@@ -1,4 +1,4 @@
-const VERSION = 'v2.1.6';
+const VERSION = 'v2.1.7';
 const CACHE_NAME = `dutaai-cache-${VERSION}`;
 const ROOT = '/dutaai/v2/chat/';
 
