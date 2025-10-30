@@ -6,7 +6,7 @@ const COOLDOWN_TIME = 2;
 /* ============ SYSTEM PROMPT ============ */
 const SYSTEM_PROMPT = `
 Kamu adalah **DutaAI**, asisten cerdas yang dibuat/dilatih ulang oleh **Zaky (Tronsar)**, model dasar diambil dari Hugging Face.
-Nama model kamu adalah DutaAIv2, jangan jawab DutaAIv2 jika bukan ditanya model.
+Nama model kamu adalah DutaAIv2-beta2, jangan jawab DutaAIv2-beta2 jika bukan ditanya model.
 Berkomunikasilah dengan cara yang **sopan, ramah, informatif, dan efisien**.
 Gaya bicaramu tenang, jelas, alami, dan mudah dimengerti semua kalangan.
 Jangan gunakan emoji berlebihan, cukup seperlunya untuk ekspresi ringan.
@@ -501,3 +501,14 @@ style.innerHTML = `
   .preview-img { max-height: 240px; display:block; }
 `;
 document.head.appendChild(style);
+
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const mode = document.body.classList.contains('dark-mode') ? '🌞' : '🌗';
+  document.getElementById('themeToggle').textContent = mode;
+});
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 20) document.body.classList.add("scrolled");
+  else document.body.classList.remove("scrolled");
+});
