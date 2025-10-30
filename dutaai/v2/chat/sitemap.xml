@@ -6,7 +6,7 @@
   <!-- Chat Page -->
   <url>
     <loc>https://tronsar.is-cool.dev/dutaai/v2/chat/</loc>
-    <lastmod>2025-10-24</lastmod>
+    <lastmod>2025-10-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -14,7 +14,7 @@
   <!-- Manifest -->
   <url>
     <loc>https://tronsar.is-cool.dev/dutaai/v2/manifest.json</loc>
-    <lastmod>2025-10-24</lastmod>
+    <lastmod>2025-10-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
