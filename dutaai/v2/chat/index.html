@@ -119,9 +119,6 @@ window.MathJax = {
 
 <link rel="stylesheet" href="style.css"/>
 
-<script src="main.js" defer></script>
-<script src="loader.js" defer></script>
-
 </head>
 <body>
 
@@ -183,6 +180,16 @@ window.MathJax = {
   </div>
 </div>
 
+<div id="login-screen" style="display:none;">
+  <div class="login-container">
+    <h2>Login ke DutaAI</h2>
+    <input type="text" id="login-username" placeholder="Nama pengguna" autocomplete="off" />
+    <input type="password" id="login-password" placeholder="Kata sandi, biasanya 123456789" />
+    <button id="login-btn">Masuk</button>
+    <p id="login-error" style="color:#ff5555; display:none; margin-top:8px;"></p>
+  </div>
+</div>
+
   <main role="main">
     <div id="chat" aria-live="polite" style="display: none;" ></div>
   </main>
@@ -192,5 +199,92 @@ window.MathJax = {
     <textarea id="input" placeholder="Ketik pertanyaanmu..." rows="1"></textarea>
     <button id="send" class="btn">Kirim</button>
   </div>
+
+<script src="main.js"></script>
+<script src="loader.js"></script>
+
+<script>
+// =================== LOGIN SYSTEM ===================
+const allowedAccounts = [
+  { name: "Zaky", password: "tronsar" },
+  { name: "Juli", password: "hebwat" },
+];
+
+const bannedAccounts = [
+  { name: "Alvino", password: "123456789" },
+];
+
+function showLogin() {
+  const loginScreen = document.getElementById("login-screen");
+  const chat = document.getElementById("chat");
+
+  if (!loginScreen) {
+    console.error("❌ Elemen #login-screen belum ditemukan di DOM!");
+    return;
+  }
+
+  if (chat) chat.style.display = "none";
+  loginScreen.style.display = "flex";
+  loginScreen.style.opacity = "0";
+  loginScreen.animate([{ opacity: 0 }, { opacity: 1 }], {
+    duration: 300,
+    easing: "ease-in-out",
+    fill: "forwards",
+  });
+}
+
+function handleLogin() {
+  const username = document.getElementById("login-username").value.trim();
+  const password = document.getElementById("login-password").value.trim();
+  const errorEl = document.getElementById("login-error");
+
+  // Cek banned
+  const isBanned = bannedAccounts.some(
+    acc => acc.name === username && acc.password === password
+  );
+  if (isBanned) {
+    errorEl.textContent = "🚫 Akun ini telah dibanned.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  // Cek akun valid
+  const isValid = allowedAccounts.some(
+    acc => acc.name === username && acc.password === password
+  );
+
+  if (!isValid) {
+    errorEl.textContent = "❌ Nama pengguna atau kata sandi salah.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  // Jika berhasil login
+  localStorage.setItem("dutaUser", username);
+  errorEl.style.display = "none";
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("chat").style.display = "block";
+
+  console.log(`✅ Login berhasil: ${username}`);
+}
+
+// Jika sudah login sebelumnya
+window.addEventListener("DOMContentLoaded", () => {
+  const savedUser = localStorage.getItem("dutaUser");
+  if (savedUser) {
+    document.getElementById("loading-screen").style.display = "none";
+    document.getElementById("chat").style.display = "block";
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("login-btn").addEventListener("click", handleLogin);
+});
+
+// Simulasi setelah boot selesai (misalnya loader.js nanti trigger ini)
+setTimeout(() => {
+  showLogin();
+}, 4000); // misal booting 4 detik
+</script>
 </body>
 </html>
