@@ -229,15 +229,28 @@
     }, 460);
   }
 
-  function finishNow() {
-    if (chatEl) {
-      chatEl.style.display = 'block';
-      chatEl.style.opacity = '0';
-      chatEl.animate([{ opacity: 0 }, { opacity: 1 }], {
-        duration: 280, easing: 'ease-in-out', fill: 'forwards'
-      });
+function finishNow() {
+  const savedUser = localStorage.getItem("dutaUser");
+
+  // Jika belum login → tampilkan form login
+  if (!savedUser) {
+    if (typeof showLogin === "function") {
+      showLogin();
+      return;
+    } else {
+      console.warn("[Boot] showLogin() belum tersedia, fallback ke chat");
     }
   }
+
+  // Kalau sudah login → langsung tampilkan chat
+  if (chatEl) {
+    chatEl.style.display = 'block';
+    chatEl.style.opacity = '0';
+    chatEl.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 280, easing: 'ease-in-out', fill: 'forwards'
+    });
+  }
+}
 
   // small helper to update SW status (can be called anytime)
   function updateServiceWorkerStatus(success, message, extraError) {
