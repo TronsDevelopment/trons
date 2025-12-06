@@ -12,6 +12,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: production   # <--- PENTING BANGET
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,7 +21,12 @@ jobs:
       - name: Inject ENV
         run: |
           mkdir -p public
-          echo "window.__ENV = { WORKER_URL: '${{ secrets.WORKER_URL }}' };" > public/env.js
+          echo "window.__ENV = {
+            WORKER_URL: '${{ secrets.WORKER_URL }}',
+            ACCESS_PASSWORD: '${{ secrets.ACCESS_PASSWORD }}',
+            CLIENT_TOKEN: '${{ secrets.CLIENT_TOKEN }}',
+            API_KEY: '${{ secrets.API_KEY }}'
+          };" > public/env.js
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -29,11 +36,5 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     environment:
       name: github-pages
-
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deploy-pages
-        uses: actions/deploy-pages@v4
