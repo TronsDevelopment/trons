@@ -413,7 +413,7 @@ async function sendPrompt(userText) {
     const contents = [
       { role: "system", parts: [{ text: SYSTEM_PROMPT }] },
       ...mem.map(m => ({
-        role: m.role === "ai" ? "model" : "user",
+        role: m.role === "ai" ? "user" : "user",
         parts: [{ text: m.content }]
       })),
       { role: "user", parts: userParts }
