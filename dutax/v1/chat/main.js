@@ -1,5 +1,5 @@
 /* ============ CONFIG ============ */
-const WORKER_URL = "dutax.esrjoo841.workers.dev";  
+const WORKER_URL = "https://dutax.esrjoo841.workers.dev";  
 const MODEL = "gemini-2.5-flash-lite";
 const COOLDOWN_TIME = 2;
 
