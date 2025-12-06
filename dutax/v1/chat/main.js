@@ -1,5 +1,5 @@
 /* ============ CONFIG ============ */
-const WORKER_URL = window.__ENV?.WORKER_URL; // contoh fallback
+const WORKER_URL = "dutax.esrjoo841.workers.dev";  
 const MODEL = "gemini-2.5-flash-lite";
 const COOLDOWN_TIME = 2;
 
@@ -13,6 +13,9 @@ const input = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 const themeToggle = document.getElementById("themeToggle");
 const attachBtn = document.getElementById("attachBtn");
+
+const CLIENT_TOKEN = "clt_tronsar_9fN72QpLmA48";
+const ACCESS_PASSWORD = "trnsr-pass-94n7k";
 
 /* ============ HELPERS (external lookups kept) ============ */
 async function fetchWeather(lat, lon, timezone = 'Asia/Jakarta') {
@@ -423,9 +426,8 @@ async function sendPrompt(userText) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // NOTE: these are injected at build-time into window.__ENV; exposing them client-side means they're discoverable.
-        "X-Client-Token": window.__ENV?.CLIENT_TOKEN || "",
-        "X-Access-Password": window.__ENV?.ACCESS_PASSWORD || ""
+        "X-Client-Token": CLIENT_TOKEN,
+        "X-Access-Password": ACCESS_PASSWORD
       },
       body: JSON.stringify(body)
     });
