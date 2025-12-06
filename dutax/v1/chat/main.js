@@ -283,7 +283,6 @@ async function typeWriter(bubble, html) {
     }
   }
   for (const n of nodes) await typeNode(n, bubble);
-  await renderMath(bubble);
   smoothScrollToBottom();
   aiTyping = false;
   setCooldown(3);
@@ -455,12 +454,6 @@ async function sendPrompt(userText) {
 
     if (typeof output !== "string") output = String(output);
 
-    output = output
-      .replace(/\\\\\(/g, "\\(")
-      .replace(/\\\\\)/g, "\\)")
-      .replace(/\\\\\[/g, "\\[")
-      .replace(/\\\\\]/g, "\\]");
-
     const htmlOutput = (window.DOMPurify && window.marked) ? DOMPurify.sanitize(marked.parse(output)) : escapeHtml(output);
 
     if (window.DOMPurify && window.DOMPurify.addHook) {
@@ -473,6 +466,14 @@ async function sendPrompt(userText) {
 
     const { bubble } = appendAIBubble();
     await typeWriter(bubble, htmlOutput);
+    
+    await renderMath(bubble);
+
+    if (/[\^_=+\-\*/]/.test(output) &&
+      !output.includes("\\(") &&
+      !output.includes("\\[")) {
+    output = `\\[${output}\\]`;
+    }
 
     // save to memory
     mem.push({ role: "user", content: userText });
