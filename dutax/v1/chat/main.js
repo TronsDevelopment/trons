@@ -411,11 +411,16 @@ async function sendPrompt(userText) {
 
     // assemble contents following Gemini's expected structure:
     const contents = [
-      { role: "system", parts: [{ text: SYSTEM_PROMPT }] },
+      // kalau butuh system prompt, kirim sebagai user message (atau hapus jika worker punya cara lain)
+      { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
+
+      // map session memory -> user/model
       ...mem.map(m => ({
-        role: m.role === "ai" ? "user" : "user",
+        role: m.role === "ai" ? "model" : "user",  // ai -> model, user -> user
         parts: [{ text: m.content }]
       })),
+
+      // current user message (dengan externalParts, reasoning, image, dll)
       { role: "user", parts: userParts }
     ];
 
