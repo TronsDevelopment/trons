@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id" dir="ltr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>DutaX v1 - Chat (ALPHA)</title>
+
+<!-- SEO & Meta -->
+<meta name="description" content="DutaX v1 – Superb AI Assistant with elegant tech design and intelligent chat interface.">
+<meta name="theme-color" content="#10a37f">
+<meta name="apple-mobile-web-app-title" content="DutaX">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="DutaX.png">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta property="og:title" content="DutaX v1 - Chat (ALPHA)">
+<meta property="og:description" content="Superb AI Assistant with futuristic interface and smart boot animation.">
+<meta property="og:image" content="DutaX.png">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tronsar.is-cool.dev/dutax/v1/chat/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DutaX v1 - Chat (ALPHA)">
+<meta name="twitter:description" content="Superb AI Assistant with futuristic interface and smart boot animation.">
+<meta name="twitter:image" content="DutaX.png">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-startup-image" href="DutaX.png">
+
+<meta name="author" content="Tronsar">
+<meta name="keywords" content="AI Chat, DutaX, Assistant, Artificial Intelligence, Chatbot">
+
+<link rel="manifest" href="manifest.json" crossorigin="use-credentials">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="DutaX.png">
+
+<!-- MathJax -->
+<script>
+window.MathJax = {
+  loader: {
+    load: [
+      'input/tex',
+      'output/chtml',
+      'ui/menu',
+      '[tex]/ams',
+      '[tex]/color',
+      '[tex]/noerrors',
+      '[tex]/noundefined'
+    ]
+  },
+
+  tex: {
+    inlineMath: [['\\(', '\\)'], ['$', '$']],
+    displayMath: [['\\[', '\\]'], ['$$', '$$']],
+    packages: {'[+]': ['ams', 'color', 'noerrors', 'noundefined']},
+    processEscapes: true,
+    processRefs: true,
+    processEnvironments: true,
+    tags: 'ams',
+    tagSide: 'right',
+    tagIndent: '0.8em',
+    formatError: (jax, err) => {
+      console.warn('[MathJax Error]', err.message);
+      return jax.formatError(err);
+    }
+  },
+
+  chtml: {
+    scale: 1.05,
+    displayAlign: 'center',
+    displayIndent: '0',
+    matchFontHeight: true,
+    mtextInheritFont: true,
+    merrorInheritFont: true,
+    unknownFamily: 'serif',
+    exFactor: 0.5,
+    lineBreaks: { automatic: true, width: '95% container' }
+  },
+
+  options: {
+    skipHtmlTags: [
+      'script',
+      'noscript',
+      'style',
+      'textarea',
+      'pre',
+      'code'
+    ],
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process',
+    renderActions: {
+      addMenu: [] // disable menu kanan atas biar clean
+    }
+  },
+
+  startup: {
+    ready: () => {
+      console.log('%c[MathJax] initialized (v3) ✨', 'color:#22d3ee');
+      MathJax.startup.defaultReady();
+    },
+    pageReady: () => {
+      console.log('%c[MathJax] ready, rendering all equations...', 'color:#22d3ee');
+      return MathJax.startup.defaultPageReady();
+    }
+  }
+};
+</script>
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+<!-- Markdown parser -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" as="style">
+
+<link rel="stylesheet" href="style.css"/>
+
+</head>
+<body>
+
+<header class="main-header">
+  <div class="header-left">
+    <img src="DutaX.png" alt="DutaX Logo" class="logo" loading="lazy">
+    <div class="header-info">
+      <h1 class="app-title">
+        DutaX <span class="app-version">v1.0</span>
+      </h1>
+      <p class="app-tagline">AI Ramah yang siap bantu anda kapan saja!</p>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <nav class="nav-links">
+      <a href="../" class="nav-item">Home</a>
+      <a href="https://tronsar.is-cool.dev/dutax/v1" class="nav-item">Docs</a>
+      <a href="https://tronsar.is-cool.dev/dutax/v1/changelog" id="changelogBtn" class="nav-item">Changelog</a>
+    </nav>
+    <button id="themeToggle" class="theme-toggle" title="Ganti tema" aria-label="Ganti tema">
+      🌗
+    </button>
+  </div>
+</header>
+
+<div id="loading-screen" aria-live="polite" role="status">
+  <div class="terminal-boot" role="presentation" aria-hidden="false">
+    <div class="boot-screen" aria-hidden="false">
+      <div class="boot-window">
+        <div id="bootLines" class="boot-lines" aria-hidden="false"></div>
+<noscript>
+  <div style="
+    width:100%;
+    padding: 20px;
+    font-family:'JetBrains Mono', monospace;
+    color:#00ff99;
+    background:rgba(0,0,0,0.4);
+    border-left:3px solid #00ff99;
+    line-height:1.4;
+  ">
+    <div>> Initializing core...</div>
+    <div>> Loading UI modules...</div>
+    <div>> Mounting /duta/config...</div>
+    <div>> ⚠️ <span style='color:#ff5555'>Error:</span> JavaScript engine not responding.</div>
+    <div>> System halted.</div>
+    <div style="margin-top:12px; color:#888;">[ Please enable JavaScript to continue booting DutaX ]</div>
+  </div>
+</noscript>
+      </div>
+    </div>
+
+    <div class="boot-right" aria-hidden="true">
+      <div style="opacity:0.85; font-size:12px; color:rgba(255,255,255,0.7)">SYSTEM</div>
+      <div class="duta-flash" id="dutaLabel">[ DUTA X ]</div>
+      <div class="duta-version" id="dutaLabelVersion">1.0</div>
+      <div id="bootReady" class="boot-final">Ready.</div>
+    </div>
+  </div>
+</div>
+
+<div id="login-screen" style="display:none;">
+  <div class="login-container">
+    <h2>Login ke DutaX</h2>
+    <input type="text" id="username-input" placeholder="Nama pengguna" autocomplete="off" />
+    <input type="password" id="password-input" placeholder="Kata sandi, biasanya 123456789" />
+    <button id="login-btn">Masuk</button>
+    <p id="login-error" style="color:#ff5555; display:none; margin-top:8px;"></p>
+  </div>
+</div>
+
+  <main role="main">
+    <div id="chat" aria-live="polite" style="display: none;" ></div>
+  </main>
+
+  <div id="controls">
+    <button id="attachBtn" class="icon-btn" title="Lampirkan file" aria-label="Lampirkan file">📎</button>
+    <textarea id="input" placeholder="Ketik pertanyaanmu..." rows="1"></textarea>
+    <button id="send" class="btn">Kirim</button>
+  </div>
+
+<script type="module" src="main.js"></script>
+<script src="loader.js" defer></script>
+<script src="login.js" defer></script>
+</body>
+</html>

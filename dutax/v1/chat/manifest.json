@@ -1,0 +1,27 @@
+{
+  "name": "DutaX",
+  "short_name": "DutaX",
+  "description": "Asisten AI cerdas dan interaktif berbasis web, cepat dan ringan.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0b0c",
+  "theme_color": "#10a37f",
+  "icons": [
+    {
+      "src": "DutaX.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "DutaX-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "id": "/",
+  "lang": "id",
+  "dir": "ltr",
+  "prefer_related_applications": false
+}
