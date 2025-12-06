@@ -1,4 +1,4 @@
-const VERSION = 'v1.0.4';
+const VERSION = 'v1.0.5';
 const CACHE_NAME = `dutax-cache-${VERSION}`;
 const ROOT = '/dutax/v1/chat';
 
@@ -257,6 +257,7 @@ async function lazyCacheAssets() {
 log(`DutaX SW ${VERSION} ready to serve 🚀`);
 
  
+
 
 
 
